@@ -1,6 +1,6 @@
 
 #add kernel source code path as head file seach path
-ccflags-y += -I$(srctree)
+ccflags-y += -I$(srctree) $(srctree)/arch/arm/mach-$(CONFIG_MTK_PLATFORM)/include
 
 obj-$(CONFIG_MTK_MMC) += dbg.o
 obj-$(CONFIG_MTK_MMC) += sd.o mt_sd_misc.o

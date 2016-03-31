@@ -4,7 +4,7 @@
     Any definitions in this file will be shared among GLUE Layer and internal Driver Stack.
 */
 
-
+#pragma message "wmt1"
 
 #ifndef _WMT_EXP_H_
 #define _WMT_EXP_H_

@@ -57,8 +57,9 @@ ifneq ($(CONFIG_MTK_COMBO),)
 	BUILD_COMBO := no
 	BUILD_SOC := no
 	
-	ifneq ($(filter "MT6620E3",$(CONFIG_MTK_COMBO_CHIP)),)
+	ifneq ($(filter "MT6620",$(CONFIG_MTK_COMBO_CHIP)),)
 		obj-y   +=  combo/
+#		obj-y   +=  conn_soc/
 	endif
 	ifneq ($(filter "MT6628",$(CONFIG_MTK_COMBO_CHIP)),)
 		obj-y   +=  combo/
@@ -79,6 +80,10 @@ ifneq ($(CONFIG_MTK_COMBO),)
 	endif
 	ifneq ($(filter "CONSYS_6582",$(CONFIG_MTK_COMBO_CHIP)),)
 #		$(warning Haman compile 82 $(CONFIG_MTK_COMBO_CHIP))
+		obj-y   +=  conn_soc/
+	endif
+	ifneq ($(filter "CONSYS_6589",$(CONFIG_MTK_COMBO_CHIP)),)
+#		$(warning Haman compile 89 $(CONFIG_MTK_COMBO_CHIP))
 		obj-y   +=  conn_soc/
 	endif
 	obj-y += common_detect/

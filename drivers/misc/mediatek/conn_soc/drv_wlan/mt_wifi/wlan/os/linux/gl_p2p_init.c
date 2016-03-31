@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: @(#) gl_p2p_init.c@@
 */
 
@@ -44,7 +30,7 @@
 */
 
 #define P2P_MODE_INF_NAME "p2p%d";
-#define AP_MODE_INF_NAME "wlan%d";
+#define AP_MODE_INF_NAME "ap%d";
 //#define MAX_INF_NAME_LEN 15
 //#define MIN_INF_NAME_LEN 1
 
@@ -485,8 +471,7 @@ p2pEalySuspendReg (
 #if defined(CONFIG_HAS_EARLYSUSPEND)
 	if (prGlueInfo->prAdapter->fgIsP2PRegistered == TRUE)
 	{
-		if(fgIsEnable && mt6620_p2p_early_suspend_desc.suspend == NULL &&
-			mt6620_p2p_early_suspend_desc.resume == NULL) {
+		if(fgIsEnable) {
 			/* Here, we register the early suspend and resume callback  */
 			glRegisterEarlySuspend(&mt6620_p2p_early_suspend_desc, p2p_early_suspend, p2p_late_resume);
 		}

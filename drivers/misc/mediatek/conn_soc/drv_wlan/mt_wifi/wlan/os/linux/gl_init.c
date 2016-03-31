@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/gl_init.c#7 $
 */
 
@@ -655,14 +641,12 @@
 ********************************************************************************
 */
 #include "gl_os.h"
-#include "os_debug.h"
+#include "debug.h"
 #include "wlan_lib.h"
 #include "gl_wext.h"
 #include "gl_cfg80211.h"
 #include "precomp.h"
-#if defined(CONFIG_MTK_TC1_FEATURE)
-#include <tc1_partition.h>
-#endif
+
 /*******************************************************************************
 *                              C O N S T A N T S
 ********************************************************************************
@@ -701,11 +685,14 @@ typedef struct _WLANDEV_INFO_T {
 MODULE_AUTHOR(NIC_AUTHOR);
 MODULE_DESCRIPTION(NIC_DESC);
 MODULE_SUPPORTED_DEVICE(NIC_NAME);
-MODULE_LICENSE("GPL");
+
+#if 0
+    MODULE_LICENSE("MTK Propietary");
+#else
+    MODULE_LICENSE("GPL");
+#endif
 
 #define NIC_INF_NAME    "wlan%d" /* interface name */
-#define NIC_INF_NAME_FOR_AP_MODE "legacy%d"
-extern volatile int wlan_if_changed;
 
 /* support to change debug module info dynamically */
 UINT_8  aucDebugModule[DBG_MODULE_NUM];
@@ -995,6 +982,7 @@ wlanSelectQueue(
 }
 #endif
 
+
 /*----------------------------------------------------------------------------*/
 /*!
 * \brief Load NVRAM data and translate it into REG_INFO_T
@@ -1028,15 +1016,12 @@ glLoadNvram (
         prGlueInfo->fgNvramAvailable = TRUE;
 
         // load MAC Address
-#if !defined(CONFIG_MTK_TC1_FEATURE)
         for (i = 0 ; i < sizeof(PARAM_MAC_ADDR_LEN) ; i += sizeof(UINT_16)) {
             kalCfgDataRead16(prGlueInfo,
                     OFFSET_OF(WIFI_CFG_PARAM_STRUCT, aucMacAddress) + i,
                     (PUINT_16) (((PUINT_8)prRegInfo->aucMacAddr) + i));
         }
-#else
-	TC1_FAC_NAME(FacReadWifiMacAddr)((unsigned char *)prRegInfo->aucMacAddr);
-#endif
+
         // load country code
         kalCfgDataRead16(prGlueInfo,
                 OFFSET_OF(WIFI_CFG_PARAM_STRUCT, aucCountryCode[0]),
@@ -1114,6 +1099,18 @@ glLoadNvram (
                 }
             }
         }
+        /* load RSSI compensation */        
+        kalCfgDataRead16(prGlueInfo,
+                OFFSET_OF(WIFI_CFG_PARAM_STRUCT, uc2GRssiCompensation),
+                (PUINT_16)aucTmp);
+        prRegInfo->uc2GRssiCompensation = aucTmp[0];
+        prRegInfo->uc5GRssiCompensation = aucTmp[1];
+
+        kalCfgDataRead16(prGlueInfo,
+                OFFSET_OF(WIFI_CFG_PARAM_STRUCT, fgRssiCompensationValidbit),
+                (PUINT_16)aucTmp);
+        prRegInfo->fgRssiCompensationValidbit= aucTmp[0];
+        prRegInfo->ucRxAntennanumber= aucTmp[1];
     }
     else {
         prGlueInfo->fgNvramAvailable = FALSE;
@@ -1896,15 +1893,15 @@ wlanInit(
 
 	if (fgIsWorkMcEverInit == FALSE)
 	{
-    if (!prDev) {
-        return -ENXIO;
-    }
+		if (!prDev) {
+			return -ENXIO;
+		}
 
-    prGlueInfo = *((P_GLUE_INFO_T *) netdev_priv(prDev));
+		prGlueInfo = *((P_GLUE_INFO_T *) netdev_priv(prDev));
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 12)
-    INIT_DELAYED_WORK(&workq, wlanSetMulticastListWorkQueue);
+		INIT_DELAYED_WORK(&workq, wlanSetMulticastListWorkQueue);
 #else
-    INIT_DELAYED_WORK(&workq, wlanSetMulticastListWorkQueue, NULL);
+		INIT_DELAYED_WORK(&workq, wlanSetMulticastListWorkQueue, NULL);
 #endif
 
 		fgIsWorkMcEverInit = TRUE;
@@ -2181,6 +2178,11 @@ static const struct net_device_ops wlan_netdev_ops = {
 };
 #endif
 
+#ifdef CONFIG_PM
+static const struct wiphy_wowlan_support wlan_wowlan_support = {
+		.flags = WIPHY_WOWLAN_DISCONNECT,
+	};
+#endif
 /*----------------------------------------------------------------------------*/
 /*!
 * \brief A method for creating Linux NET4 struct net_device object and the
@@ -2249,7 +2251,10 @@ wlanNetCreate(
     prWdev->wiphy->flags            = WIPHY_FLAG_CUSTOM_REGULATORY | WIPHY_FLAG_SUPPORTS_FW_ROAM | WIPHY_FLAG_HAS_REMAIN_ON_CHANNEL;
     prWdev->wiphy->max_remain_on_channel_duration = 5000;
     prWdev->wiphy->mgmt_stypes = mtk_cfg80211_ais_default_mgmt_stypes;
-
+#ifdef CONFIG_PM
+	kalMemCopy(&prWdev->wiphy->wowlan, &wlan_wowlan_support,
+		sizeof(struct wiphy_wowlan_support));
+#endif
     //4 <2> Create Glue structure
     prGlueInfo = (P_GLUE_INFO_T) wiphy_priv(prWdev->wiphy);
     if (!prGlueInfo) {
@@ -2258,12 +2263,8 @@ wlanNetCreate(
     }
 
     //4 <3> Initial Glue structure
-    //4 <3.1> Create net device 
-	if (wlan_if_changed) {
-		prGlueInfo->prDevHandler = alloc_netdev_mq(sizeof(P_GLUE_INFO_T), NIC_INF_NAME_FOR_AP_MODE, ether_setup, CFG_MAX_TXQ_NUM);
-	} else {
-		prGlueInfo->prDevHandler = alloc_netdev_mq(sizeof(P_GLUE_INFO_T), NIC_INF_NAME, ether_setup, CFG_MAX_TXQ_NUM);
-	}
+    //4 <3.1> create net device 
+    prGlueInfo->prDevHandler = alloc_netdev_mq(sizeof(P_GLUE_INFO_T), NIC_INF_NAME, ether_setup, CFG_MAX_TXQ_NUM);
 
     DBGLOG(INIT, INFO, ("net_device prDev(0x%p) allocated\n", prGlueInfo->prDevHandler));
     if (!prGlueInfo->prDevHandler) {
@@ -2708,7 +2709,7 @@ int
 set_p2p_mode_handler(
     struct net_device *netdev, 
     PARAM_CUSTOM_P2P_SET_STRUC_T p2pmode
-    )
+)
 {
 #if 0
     P_GLUE_INFO_T prGlueInfo  = *((P_GLUE_INFO_T *)netdev_priv(netdev));
@@ -2840,7 +2841,7 @@ set_p2p_mode_handler(
 static void 
 set_dbg_level_handler(
     unsigned char dbg_lvl[DBG_MODULE_NUM]
-    )
+)
 {
     kalMemCopy(aucDebugModule, dbg_lvl, sizeof(aucDebugModule));
     kalPrint("[wlan] change debug level");
@@ -2975,7 +2976,7 @@ wlanProbe(
 bailout:
             //kfree(prRegInfo);
 
-            DBGLOG(INIT, TRACE, ("download firmware status = %d\n", (INT32)i4Status));
+            DBGLOG(INIT, TRACE, ("download firmware status = %d\n", i4Status));
 
             if (i4Status < 0) {
                 /* dump HIF/DMA registers */
@@ -3001,7 +3002,7 @@ bailout:
         }
 #endif
         if(TRUE == prAdapter->fgEnable5GBand)
-            prWdev->wiphy->bands[IEEE80211_BAND_5GHZ] = &mtk_band_5ghz;
+        prWdev->wiphy->bands[IEEE80211_BAND_5GHZ] = &mtk_band_5ghz;
 
         prGlueInfo->main_thread = kthread_run(tx_thread, prGlueInfo->prDevHandler, "tx_thread");
 
@@ -3132,7 +3133,7 @@ bailout:
 #endif
 #if CFG_SPM_WORKAROUND_FOR_HOTSPOT
         if (glIsChipNeedWakelock(prGlueInfo))
-        KAL_WAKE_LOCK_INIT(prGlueInfo->prAdapter, &prGlueInfo->prAdapter->rApWakeLock, "WLAN AP");
+            KAL_WAKE_LOCK_INIT(prGlueInfo->prAdapter, &prGlueInfo->prAdapter->rApWakeLock, "WLAN AP");
 #endif
     }
     while (FALSE);
@@ -3277,7 +3278,7 @@ wlanRemove(
 	if (fgIsWorkMcStart == TRUE)
 	{
 		DBGLOG(INIT, INFO, ("flush_delayed_work...\n"));
-    flush_delayed_work(&workq); /* flush_delayed_work_sync is deprecated */
+		flush_delayed_work(&workq); /* flush_delayed_work_sync is deprecated */
 	}
 
     DBGLOG(INIT, INFO, ("down g_halt_sem...\n"));
@@ -3325,12 +3326,12 @@ wlanRemove(
 #if CFG_ENABLE_WIFI_DIRECT
     prGlueInfo->prAdapter->fgIsWlanLaunched = FALSE;
     if(prGlueInfo->prAdapter->fgIsP2PRegistered) {
-        DBGLOG(INIT, INFO, ("Start to p2pNetUnregister...\n"));
+		DBGLOG(INIT, INFO, ("Start to p2pNetUnregister...\n"));
         p2pNetUnregister(prGlueInfo, FALSE);
 
-        p2pEalySuspendReg(prGlueInfo, FALSE);
+		p2pEalySuspendReg(prGlueInfo, FALSE);
 
-        DBGLOG(INIT, INFO, ("Start to p2pRemove...\n"));
+		DBGLOG(INIT, INFO, ("Start to p2pRemove...\n"));
         p2pRemove(prGlueInfo);
     }
 
@@ -3381,7 +3382,15 @@ wlanRemove(
 */
 /*----------------------------------------------------------------------------*/
 //1 Module Entry Point
+#ifdef MTK_WCN_REMOVE_KERNEL_MODULE
+/*
+	cannot use "__init"; Or the function will be freed after kernel start;
+	then WMT will fail to call it.
+*/
 static int initWlan(void)
+#else
+static int __init initWlan(void)
+#endif
 {
     int ret = 0, i;
 
@@ -3417,13 +3426,19 @@ static int initWlan(void)
         aucDebugModule[i] = DBG_CLASS_ERROR | \
             DBG_CLASS_WARN | \
             DBG_CLASS_STATE | \
-            DBG_CLASS_EVENT;
+            DBG_CLASS_EVENT | \
+            DBG_CLASS_TRACE | \
+            DBG_CLASS_INFO;
     }
-    aucDebugModule[DBG_INIT_IDX] &= DBG_CLASS_TRACE | DBG_CLASS_INFO;
-    aucDebugModule[DBG_HAL_IDX] &= DBG_CLASS_TRACE | DBG_CLASS_INFO;
-    aucDebugModule[DBG_REQ_IDX] &= ~(DBG_CLASS_EVENT);
-    aucDebugModule[DBG_TX_IDX] &= ~(DBG_CLASS_EVENT);
-    aucDebugModule[DBG_RX_IDX] &= ~(DBG_CLASS_EVENT);
+    aucDebugModule[DBG_TX_IDX] &= ~(DBG_CLASS_EVENT | \
+        DBG_CLASS_TRACE | \
+        DBG_CLASS_INFO);
+    aucDebugModule[DBG_RX_IDX] &= ~(DBG_CLASS_EVENT | \
+        DBG_CLASS_TRACE | \
+        DBG_CLASS_INFO);
+    aucDebugModule[DBG_REQ_IDX] &= ~(DBG_CLASS_EVENT | \
+        DBG_CLASS_TRACE | \
+        DBG_CLASS_INFO);
     aucDebugModule[DBG_INTR_IDX] = 0;
     aucDebugModule[DBG_MEM_IDX] = 0;
 #endif /* DBG */
@@ -3442,7 +3457,7 @@ static int initWlan(void)
 */
 /*----------------------------------------------------------------------------*/
 //1 Module Leave Point
-static VOID exitWlan(void)
+static VOID __exit exitWlan(void)
 {
     DBGLOG(INIT, INFO, ("exitWlan\n"));
 

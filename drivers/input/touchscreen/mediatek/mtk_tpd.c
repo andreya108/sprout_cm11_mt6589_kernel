@@ -171,6 +171,10 @@ static struct early_suspend MTK_TS_early_suspend_handler =
 #endif
 
 static struct tpd_driver_t *g_tpd_drv = NULL;
+/*Begin lenovo-sw wengjun1 add for tp info struct. 2014-1-15*/
+struct tpd_version_info *tpd_info_t = NULL;
+unsigned int have_correct_setting = 0;
+/*End lenovo-sw wengjun1 add for tp info struct. 2014-1-15*/
 /* Add driver: if find TPD_TYPE_CAPACITIVE driver sucessfully, loading it */
 int tpd_driver_add(struct tpd_driver_t *tpd_drv)
 {
@@ -275,7 +279,9 @@ static int tpd_probe(struct platform_device *pdev) {
     register_early_suspend(&MTK_TS_early_suspend_handler);
     #endif
     #endif
-
+/*Begin lenovo-sw wengjun1 add for tp info struct. 2014-1-15*/
+    tpd_info_t = (struct tpd_version_info*)kmalloc(sizeof(struct tpd_version_info), GFP_KERNEL);
+/*End lenovo-sw wengjun1 add for tp info struct. 2014-1-15*/
     if (misc_register(&tpd_misc_device))
     {
 	printk("mtk_tpd: tpd_misc_device register failed\n");

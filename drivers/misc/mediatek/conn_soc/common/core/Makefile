@@ -4,11 +4,13 @@ ccflags-y += -I$(src)/../linux/include \
 						 -I$(src)/../core/include \
 						 -I$(src)/../include \
 						 -I$(src)/ \
+						 -I$(src)/../../../eemcs \
+						 -I$(src)/../../../conn_md/include \
 						 -I$(src)/../../../btif/inc \
 						 -I$(src)/../../../common_detect
 						 
-ccflags-y += -I$(MTK_CUSTOM_PATH)/kernel/drivers/eemcs/
-ccflags-y += -I$(MTK_CUSTOM_PATH)/kernel/drivers/conn_md/include
+ccflags-y += -I$(MTK_ROOT)/kernel/drivers/eemcs/
+ccflags-y += -I$(MTK_ROOT)/kernel/drivers/conn_md/include
 
 obj-y += wmt_core.o \
          wmt_ctrl.o \

@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: @(#) gl_cfg80211.c@@
 */
 
@@ -62,7 +48,7 @@
 ********************************************************************************
 */
 #include "gl_os.h"
-#include "os_debug.h"
+#include "debug.h"
 #include "wlan_lib.h"
 #include "gl_wext.h"
 #include "precomp.h"
@@ -422,9 +408,7 @@ mtk_cfg80211_get_station (
     WLAN_STATUS rStatus;
     PARAM_MAC_ADDRESS arBssid;
     UINT_32 u4BufLen, u4Rate;
-    UINT_32 u8diffTxBad,u8diffRetry;
     INT_32 i4Rssi;
-    PARAM_802_11_STATISTICS_STRUCT_T rStatistics;
 
     prGlueInfo = (P_GLUE_INFO_T) wiphy_priv(wiphy);
     ASSERT(prGlueInfo);
@@ -493,75 +477,41 @@ mtk_cfg80211_get_station (
     }
 
     sinfo->rx_packets = prGlueInfo->rNetDevStats.rx_packets;
-        
-        /* 4. Fill Tx OK and Tx Bad */
-        
     sinfo->filled |= STATION_INFO_TX_PACKETS;
+    sinfo->tx_packets = prGlueInfo->rNetDevStats.tx_packets;
     sinfo->filled |= STATION_INFO_TX_FAILED;
+
+#if 1
    {
             WLAN_STATUS rStatus;
-            kalMemZero(&rStatistics, sizeof(rStatistics));
-            /* Get Tx OK/Fail cnt from AIS statistic counter */    
+            UINT_32 u4XmitError = 0;
+//           UINT_32 u4XmitOk = 0;
+//          UINT_32 u4RecvError = 0;
+//           UINT_32 u4RecvOk = 0;
+//           UINT_32 u4BufLen;
+
+           /* @FIX ME: need a more clear way to do this */
+
+
             rStatus = kalIoctl(prGlueInfo,
-                    wlanoidQueryStatisticsPL,
-                    &rStatistics,
-                    sizeof(rStatistics),
+                    wlanoidQueryXmitError,
+                    &u4XmitError,
+                    sizeof(UINT_32),
                     TRUE,
                     TRUE,
                     TRUE,
                     FALSE,
                     &u4BufLen);
 
-            if (rStatus != WLAN_STATUS_SUCCESS) {
-                DBGLOG(REQ, WARN, ("unable to retrieive statistic\n"));
-		printk("unable to retrieve statics");
-            }
-            else {
-		INT_32 i4RssiThreshold = -85; /* set rssi threshold -85dBm */
-		UINT_32 u4LinkspeedThreshold = 55; /* set link speed threshold 5.5Mbps */
-		BOOLEAN fgWeighted = 0;
+           prGlueInfo->rNetDevStats.tx_errors = u4XmitError;
 
-		/* calculate difference */
-		u8diffTxBad =  rStatistics.rFailedCount.QuadPart - prGlueInfo->u8Statistic[0];
-		u8diffRetry =  rStatistics.rRetryCount.QuadPart - prGlueInfo->u8Statistic[1];
-		/* restore counters */
-		prGlueInfo->u8Statistic[0] = rStatistics.rFailedCount.QuadPart;
-		prGlueInfo->u8Statistic[1] = rStatistics.rRetryCount.QuadPart;
+   }
+#else
+         prGlueInfo->rNetDevStats.tx_errors = 0;
+#endif
 
-		/* check threshold is valid */
-		if(prGlueInfo->fgPoorlinkValid){
-		  if(prGlueInfo->i4RssiThreshold)
-	  		i4RssiThreshold = prGlueInfo->i4RssiThreshold;
-		  if(prGlueInfo->u4LinkspeedThreshold)
-			u4LinkspeedThreshold = prGlueInfo->u4LinkspeedThreshold;
-                }
-		/* add weighted to fail counter */	
-                if(sinfo->txrate.legacy < u4LinkspeedThreshold || sinfo->signal < i4RssiThreshold ){
-	    		prGlueInfo->u8TotalFailCnt += (u8diffTxBad*16 + u8diffRetry);
-			fgWeighted = 1;
-		}else{
-	    		prGlueInfo->u8TotalFailCnt += u8diffTxBad;
-		}
-		/* report counters */
-                prGlueInfo->rNetDevStats.tx_packets = rStatistics.rTransmittedFragmentCount.QuadPart ; 
-                prGlueInfo->rNetDevStats.tx_errors = prGlueInfo->u8TotalFailCnt;
-
-                sinfo->tx_packets = prGlueInfo->rNetDevStats.tx_packets;
     sinfo->tx_failed = prGlueInfo->rNetDevStats.tx_errors;
 
-		printk("poorlink get state G(%d)F(%d)dbad(%d)dretry(%d)LT(%d)RT(%d)W(%d)(%d)\n",
-		sinfo->tx_packets,
-		sinfo->tx_failed,
-                (int)u8diffTxBad,
-		(int)u8diffRetry,
-		sinfo->txrate.legacy,
-		sinfo->signal,
-		(int)fgWeighted,
-		(int)rStatistics.rMultipleRetryCount.QuadPart);
-            }                
-
-
-    }
     return 0;
 }
 
@@ -677,13 +627,6 @@ mtk_cfg80211_connect (
 
 	DBGLOG(REQ, INFO, ("[wlan] mtk_cfg80211_connect 0x%p %d\n",
 		   sme->ie, sme->ie_len));
-#if CFG_SUPPORT_WAPI
-	if (sme->ie != NULL)
-	{
-		DBGLOG(REQ, INFO, ("[wlan] ELM ID 0x%x = 0x%x ?\n",
-				sme->ie[0], ELEM_ID_WAPI));
-	}
-#endif
 
     if (prGlueInfo->prAdapter->rWifiVar.rConnSettings.eOPMode > NET_TYPE_AUTO_SWITCH)
 		eOpMode = NET_TYPE_AUTO_SWITCH;
@@ -835,19 +778,22 @@ mtk_cfg80211_connect (
         PUINT_8 prDesiredIE = NULL;
 
 #if CFG_SUPPORT_WAPI
-        rStatus = kalIoctl(prGlueInfo,
-                wlanoidSetWapiAssocInfo,
-                sme->ie,
-                sme->ie_len,
-                FALSE,
-                FALSE,
-                FALSE,
-                FALSE,
-                &u4BufLen);
-        
-        if (rStatus != WLAN_STATUS_SUCCESS) {
-            DBGLOG(SEC, WARN, ("[wapi] set wapi assoc info error:%lx\n", rStatus));
-        }
+		if (wextSrchDesiredWAPIIE(sme->ie,
+				sme->ie_len, (PUINT_8 *)&prDesiredIE)){
+	        rStatus = kalIoctl(prGlueInfo,
+	                wlanoidSetWapiAssocInfo,
+	                prDesiredIE,
+	                IE_SIZE(prDesiredIE),
+	                FALSE,
+	                FALSE,
+	                FALSE,
+	                FALSE,
+	                &u4BufLen);
+			
+	        if (rStatus != WLAN_STATUS_SUCCESS) {
+	            DBGLOG(SEC, WARN, ("[wapi] set wapi assoc info error:%lx\n", rStatus));
+	        }
+		}
 #endif
 
 		DBGLOG(REQ, INFO, ("[wlan] wlanoidSetWapiAssocInfo: .fgWapiMode = %d\n",
@@ -2204,6 +2150,82 @@ mtk_cfg80211_testmode_get_sta_statistics(
 }
 
 int
+mtk_cfg80211_testmode_get_link_detection(
+    IN struct wiphy *wiphy,
+    IN void *data,
+    IN int len,
+    IN P_GLUE_INFO_T prGlueInfo)
+{
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)   
+#define NLA_PUT(skb, attrtype, attrlen, data) \
+         do { \
+                 if (unlikely(nla_put(skb, attrtype, attrlen, data) < 0)) \
+                         goto nla_put_failure; \
+         } while(0)
+ 
+#define NLA_PUT_TYPE(skb, type, attrtype, value) \
+         do { \
+                 type __tmp = value; \
+                 NLA_PUT(skb, attrtype, sizeof(type), &__tmp); \
+         } while(0)
+ 
+#define NLA_PUT_U8(skb, attrtype, value) \
+         NLA_PUT_TYPE(skb, u8, attrtype, value)
+
+#define NLA_PUT_U16(skb, attrtype, value) \
+         NLA_PUT_TYPE(skb, u16, attrtype, value)
+
+#define NLA_PUT_U32(skb, attrtype, value) \
+         NLA_PUT_TYPE(skb, u32, attrtype, value)
+
+#define NLA_PUT_U64(skb, attrtype, value) \
+         NLA_PUT_TYPE(skb, u64, attrtype, value)
+
+#endif
+
+    WLAN_STATUS rStatus = WLAN_STATUS_SUCCESS;
+    INT_32 i4Status = -EINVAL;
+	UINT_32 u4BufLen;
+	
+	PARAM_802_11_STATISTICS_STRUCT_T rStatistics;
+    struct sk_buff *skb;
+    
+	ASSERT(wiphy);
+    ASSERT(prGlueInfo);
+   	
+	skb = cfg80211_testmode_alloc_reply_skb(wiphy, sizeof(PARAM_GET_STA_STA_STATISTICS) + 1);
+
+	if(!skb) {
+        DBGLOG(QM, TRACE, ("%s allocate skb failed:%lx\n", __FUNCTION__, rStatus));
+		return -ENOMEM;
+	}
+
+	kalMemZero(&rStatistics, sizeof(rStatistics));
+
+	rStatus = kalIoctl(prGlueInfo,
+			wlanoidQueryStatistics,
+			&rStatistics,
+			sizeof(rStatistics),
+			TRUE,
+			TRUE,
+			TRUE,
+			FALSE,
+			&u4BufLen);
+   
+    NLA_PUT_U8(skb, NL80211_TESTMODE_STA_STATISTICS_INVALID, 0);
+    NLA_PUT_U64(skb, NL80211_TESTMODE_LINK_TX_FAIL_CNT, rStatistics.rFailedCount.QuadPart); 
+    NLA_PUT_U64(skb, NL80211_TESTMODE_LINK_TX_RETRY_CNT, rStatistics.rRetryCount.QuadPart);
+    NLA_PUT_U64(skb, NL80211_TESTMODE_LINK_TX_MULTI_RETRY_CNT, rStatistics.rMultipleRetryCount.QuadPart);
+    NLA_PUT_U64(skb, NL80211_TESTMODE_LINK_ACK_FAIL_CNT, rStatistics.rACKFailureCount.QuadPart);
+    NLA_PUT_U64(skb, NL80211_TESTMODE_LINK_FCS_ERR_CNT, rStatistics.rFCSErrorCount.QuadPart);
+    
+	i4Status = cfg80211_testmode_reply(skb);
+
+    nla_put_failure:    
+    return i4Status;
+}
+
+int
 mtk_cfg80211_testmode_sw_cmd(
     IN struct wiphy *wiphy,
     IN void *data,
@@ -2312,39 +2334,7 @@ mtk_cfg80211_testmode_hs20_cmd(
 
 #endif
 
-int
-mtk_cfg80211_testmode_set_poorlink_param(
-    IN struct wiphy *wiphy,
-    IN void *data,
-    IN int len,
-    IN P_GLUE_INFO_T prGlueInfo)
-{
-	  int     fgIsValid = 0;
-    P_NL80211_DRIVER_POORLINK_PARAMS prParams = NULL;
 
-	ASSERT(wiphy);
-	ASSERT(prGlueInfo);
-   
-  	if(data && len) {
-        prParams = (P_NL80211_DRIVER_POORLINK_PARAMS)data;
-    }
-if(prParams->ucLinkSpeed)
-	prGlueInfo->u4LinkspeedThreshold = prParams->ucLinkSpeed*10;
-if(prParams->cRssi)
-	prGlueInfo->i4RssiThreshold = prParams->cRssi;
-if(!prGlueInfo->fgPoorlinkValid)
-	prGlueInfo->fgPoorlinkValid = 1;
-#if 0
-printk("poorlink set param valid(%d)rssi(%d)linkspeed(%d)\n",
-prGlueInfo->fgPoorlinkValid,
-prGlueInfo->i4RssiThreshold,
-prGlueInfo->u4LinkspeedThreshold
-);
-#endif
-
-return fgIsValid;
-
-}
 int mtk_cfg80211_testmode_cmd(
     IN struct wiphy *wiphy,
     IN void *data,
@@ -2386,9 +2376,9 @@ int mtk_cfg80211_testmode_cmd(
 			case 0x10:
 				i4Status = mtk_cfg80211_testmode_get_sta_statistics(wiphy, data, len, prGlueInfo);
                 break;
-			case 0x04:
-				i4Status = mtk_cfg80211_testmode_set_poorlink_param(wiphy, data, len, prGlueInfo);
-		break;
+			case 0x20:
+				i4Status = mtk_cfg80211_testmode_get_link_detection(wiphy, data, len, prGlueInfo);
+                break;
 #if CFG_SUPPORT_HOTSPOT_2_0
 			case TESTMODE_CMD_ID_HS20:
 				if(mtk_cfg80211_testmode_hs20_cmd(wiphy, data, len))
@@ -2440,7 +2430,7 @@ mtk_cfg80211_testmode_get_scan_done(
     INT_32 i4Status = -EINVAL,READY_TO_BEAM=0;
 	
 	
-//    P_NL80211_DRIVER_GET_STA_STATISTICS_PARAMS prParams = NULL;
+    P_NL80211_DRIVER_GET_STA_STATISTICS_PARAMS prParams = NULL;
     struct sk_buff *skb;
     
 	ASSERT(wiphy);

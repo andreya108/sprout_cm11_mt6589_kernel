@@ -437,12 +437,14 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 /*=======================================================================*/
 /* Board Devices Capability                                              */
 /*=======================================================================*/
-#define MSDC_SDCARD_FLAG  (MSDC_SYS_SUSPEND | MSDC_CD_PIN_EN | MSDC_REMOVABLE | MSDC_HIGHSPEED )
+#define MSDC_SDCARD_FLAG  (MSDC_SYS_SUSPEND | MSDC_CD_PIN_EN | MSDC_REMOVABLE | MSDC_HIGHSPEED| MSDC_UHS1 |MSDC_DDR)
 //Please enable/disable SD card MSDC_CD_PIN_EN for customer request
 #define MSDC_SDIO_FLAG    (MSDC_EXT_SDIO_IRQ | MSDC_HIGHSPEED)
 #define MSDC_EMMC_FLAG	  (MSDC_SYS_SUSPEND | MSDC_HIGHSPEED | MSDC_UHS1 |MSDC_DDR)
 
 #if defined(CFG_DEV_MSDC0)
+#pragma message "msdc0"
+
 #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 0)
     struct msdc_hw msdc0_hw = {	    
 		.clk_src        = MSDC_CLKSRC_200MHZ,
@@ -503,6 +505,7 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 	#endif
 #endif
 #if defined(CFG_DEV_MSDC1)
+#pragma message "msdc1"
     #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 1)
     struct msdc_hw msdc1_hw = {	    
         .clk_src        = MSDC_CLKSRC_200MHZ,
@@ -549,8 +552,8 @@ struct msdc_hw msdc1_hw = {
     .dat_drv_sd_18	= 3,
     .data_pins      = 4,
     .data_offset    = 0,
-    .flags          = MSDC_SDCARD_FLAG,
-    	.dat0rddly		= 0,
+    .flags          = MSDC_SDCARD_FLAG & (~MSDC_CD_PIN_EN),
+   	  .dat0rddly		= 0,
 			.dat1rddly		= 0,
 			.dat2rddly		= 0,
 			.dat3rddly		= 0,
@@ -568,6 +571,7 @@ struct msdc_hw msdc1_hw = {
     #endif
 #endif
 #if defined(CFG_DEV_MSDC2)
+#pragma message "msdc2"
     #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 2)
     /* MSDC2 settings for MT66xx combo connectivity chip */
 	struct msdc_hw msdc2_hw = {	    
@@ -633,9 +637,15 @@ struct msdc_hw msdc2_hw = {
 };
     #endif
 #endif
+#pragma message "CFG_DEV_MSDC3" CFG_DEV_MSDC3
+
 #if defined(CFG_DEV_MSDC3)
+
+#pragma message "msdc3"
+
 	#if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 3)
     /* MSDC3 settings for MT66xx combo connectivity chip */
+#pragma message "CONFIG_MTK_WCN_CMB_SDIO_SLOT"
     struct msdc_hw msdc3_hw = {
 	    .clk_src        = MSDC_CLKSRC_200MHZ,
 	    .cmd_edge       = MSDC_SMPL_FALLING,

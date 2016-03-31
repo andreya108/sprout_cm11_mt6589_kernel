@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: @(#) gl_p2p.c@@
 */
 
@@ -568,7 +554,7 @@
 ********************************************************************************
 */
 #include "gl_os.h"
-#include "os_debug.h"
+#include "debug.h"
 #include "wlan_lib.h"
 #include "gl_wext.h"
 #include <linux/poll.h>
@@ -942,6 +928,12 @@ const struct iw_handler_def mtk_p2p_wext_handler_def = {
     .get_wireless_stats = NULL,
 #endif
 };
+
+#ifdef CONFIG_PM
+static const struct wiphy_wowlan_support p2p_wowlan_support = {
+		.flags = WIPHY_WOWLAN_DISCONNECT,
+	};
+#endif
 
 /*******************************************************************************
 *                                 M A C R O S
@@ -1348,7 +1340,7 @@ p2pNetRegister(
     if(!fgDoRegister) {
         return TRUE;
     }
-
+	
     /* Here are functions which need rtnl_lock */
     wiphy_register(prGlueInfo->prP2PInfo->wdev.wiphy);
 
@@ -1551,7 +1543,10 @@ glRegisterP2P(
     prGlueInfo->prP2PInfo->wdev.wiphy->max_scan_ie_len = MAX_SCAN_IE_LEN;
     prGlueInfo->prP2PInfo->wdev.wiphy->signal_type = CFG80211_SIGNAL_TYPE_MBM;
 #endif
-
+#ifdef CONFIG_PM
+	kalMemCopy(&(prGlueInfo->prP2PInfo->wdev.wiphy->wowlan),
+		&p2p_wowlan_support, sizeof(struct wiphy_wowlan_support));
+#endif
 #if 0
     /* 2. Register WIPHY */
     if(wiphy_register(prGlueInfo->prP2PInfo->wdev.wiphy) < 0) {

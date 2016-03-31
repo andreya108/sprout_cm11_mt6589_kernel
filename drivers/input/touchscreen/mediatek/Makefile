@@ -35,6 +35,10 @@ ifeq ($(CONFIG_MTK_SYNAPTICS_3508),y)
 obj-y	+=  synaptics_3508/
 endif
 
+ifeq ($(CONFIG_MTK_PRADA_CTP),y)
+obj-y	+=  Prada_CTP/
+endif
+
 ifeq ($(CONFIG_MTK_FT6X06),y)
 obj-y	+=  ft6x06/
 endif

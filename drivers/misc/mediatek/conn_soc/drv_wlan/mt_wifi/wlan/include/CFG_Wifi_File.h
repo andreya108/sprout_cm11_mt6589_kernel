@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/include/CFG_Wifi_File.h#1 $
 */
 
@@ -108,15 +94,7 @@
 // duplicated from nic_cmd_event.h to avoid header dependency
 typedef struct _TX_PWR_PARAM_T {
     INT_8       cTxPwr2G4Cck;		/* signed, in unit of 0.5dBm */
-#if defined(MT6620)
-    INT_8       acReserved[3];
-#elif defined(MT5931) || defined(MT6628)
-    INT_8       cTxPwr2G4Dsss;      /* signed, in unit of 0.5dBm */
-    INT_8       acReserved[2];
-#else
-    #error "No valid definition!"
-#endif
-
+    INT_8       acReserved[3];          /* form MT6628 acReserved[0]=cTxPwr2G4Dsss */
     INT_8       cTxPwr2G4OFDM_BPSK;
     INT_8       cTxPwr2G4OFDM_QPSK;
     INT_8       cTxPwr2G4OFDM_16QAM;
@@ -205,7 +183,11 @@ typedef struct _MT6620_CFG_PARAM_STRUCT {
     UINT_8              uc5GBwFixed20M;
     UINT_8              ucEnable5GBand;
     UINT_8              aucPreTailReserved;
-    UINT_8              aucTailReserved[256-8];
+    UINT_8              uc2GRssiCompensation;
+    UINT_8              uc5GRssiCompensation;
+    UINT_8              fgRssiCompensationValidbit;
+    UINT_8              ucRxAntennanumber;
+    UINT_8              aucTailReserved[256-12];
 } MT6620_CFG_PARAM_STRUCT, *P_MT6620_CFG_PARAM_STRUCT,
     WIFI_CFG_PARAM_STRUCT, *P_WIFI_CFG_PARAM_STRUCT;
 

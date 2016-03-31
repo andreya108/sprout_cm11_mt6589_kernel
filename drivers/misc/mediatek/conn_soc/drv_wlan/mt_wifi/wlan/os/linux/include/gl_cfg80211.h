@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/include/gl_cfg80211.h#1 $
 */
 
@@ -80,14 +66,6 @@ typedef struct _NL80211_DRIVER_GET_STA_STATISTICS_PARAMS {
     UINT_8 aucMacAddr[MAC_ADDR_LEN];
 }NL80211_DRIVER_GET_STA_STATISTICS_PARAMS, *P_NL80211_DRIVER_GET_STA_STATISTICS_PARAMS;
 
-typedef struct _NL80211_DRIVER_POORLINK_PARAMS {
-    NL80211_DRIVER_TEST_MODE_PARAMS hdr;
-    INT_8 cRssi; //cRssi=0 means it is a invalid value.
-    UINT_8 ucLinkSpeed; //ucLinkSpeed=0 means it is a invalid value
-    UINT_16 u2Reserved;
-} NL80211_DRIVER_POORLINK_PARAMS, *P_NL80211_DRIVER_POORLINK_PARAMS;
-
-
 typedef enum _ENUM_TESTMODE_STA_STATISTICS_ATTR{
     NL80211_TESTMODE_STA_STATISTICS_INVALID = 0,
 	NL80211_TESTMODE_STA_STATISTICS_VERSION,
@@ -128,6 +106,17 @@ typedef struct _NL80211_DRIVER_GET_SCANDONE_PARAMS {
     UINT_32 u4ScanDone;
 
 }NL80211_DRIVER_GET_SCANDONE_PARAMS, *P_NL80211_DRIVER_GET_SCANDONE_PARAMS;
+
+typedef enum _ENUM_TESTMODE_LINK_DETECTION_ATTR{
+	NL80211_TESTMODE_LINK_INVALID = 0,
+	NL80211_TESTMODE_LINK_TX_FAIL_CNT,
+	NL80211_TESTMODE_LINK_TX_RETRY_CNT,
+	NL80211_TESTMODE_LINK_TX_MULTI_RETRY_CNT,
+	NL80211_TESTMODE_LINK_ACK_FAIL_CNT,
+	NL80211_TESTMODE_LINK_FCS_ERR_CNT,
+    
+	NL80211_TESTMODE_LINK_DETECT_NUM,
+}ENUM_TESTMODE_LINK_DETECTION_ATTR;
 
 #endif
 /*******************************************************************************

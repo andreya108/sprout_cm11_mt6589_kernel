@@ -1,17 +1,3 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
 /*! \file
     \brief  Declaration of library functions
 
@@ -2216,15 +2202,10 @@ static INT32 opfunc_idc_msg_handling(P_WMT_OP pWmtOp)
 	if(NULL == pTxBuf)
 	{
 		WMT_ERR_FUNC("idc msg buffer is NULL\n");
-		return -1;
+		return MTK_WCN_BOOL_FALSE;
 	}else
 	{
-		msg_len = pTxBuf->local_para_ptr->msg_len - osal_sizeof(local_para_struct);
-		if(msg_len > 1200)
-		{
-			WMT_ERR_FUNC("abnormal idc msg len:%d\n",msg_len);
-			return -2;
-		}
+		msg_len = pTxBuf->local_para_ptr->msg_len;
 		msg_len += 1;/*flag byte*/
 
 		osal_memcpy(&host_lte_btwf_coex_cmd[2],&msg_len,2);

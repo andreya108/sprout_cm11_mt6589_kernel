@@ -17,6 +17,10 @@
 #define LCD_DEBUG(fmt) printk(fmt)
 #endif
 
+#define NT35590_HD720_DSI_VDO_TRULY 1
+
+#pragma message "go " NT35590_HD720_DSI_VDO_TRULY
+
 extern LCM_DRIVER hx8369_lcm_drv;
 extern LCM_DRIVER hx8369_6575_lcm_drv;
 extern LCM_DRIVER hx8363_6575_dsi_lcm_drv;
@@ -178,7 +182,9 @@ LCM_DRIVER* lcm_driver_list[] =
 #endif
 
 #if defined(NT35590_HD720_DSI_VDO_TRULY)
-	&nt35590_hd720_dsi_vdo_truly_lcm_drv, 
+	&nt35590_hd720_dsi_vdo_truly_lcm_drv,
+#else
+#pragma message "NT35590_HD720_DSI_VDO_TRULY NOT defined"
 #endif
 
 #if defined(SSD2075_HD720_DSI_VDO_TRULY)

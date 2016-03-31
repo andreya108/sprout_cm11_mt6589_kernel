@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/saa_fsm.c#2 $
 */
 
@@ -784,8 +770,7 @@ saaFsmRunEventTxDone (
 
     ASSERT(prStaRec);
 
-    DBGLOG(SAA, LOUD, ("EVENT-TX DONE: Current Time = %lu\n",
-		(unsigned long)kalGetTimeTick()));
+    DBGLOG(SAA, LOUD, ("EVENT-TX DONE: Current Time = %u\n", kalGetTimeTick()));
 
     eNextState = prStaRec->eAuthAssocState;
 
@@ -913,8 +898,7 @@ saaFsmRunEventTxReqTimeOut (
         return;
     }
 
-    DBGLOG(SAA, LOUD, ("EVENT-TIMER: TX REQ TIMEOUT, Current Time = %lu\n",
-		(unsigned long)kalGetTimeTick()));
+    DBGLOG(SAA, LOUD, ("EVENT-TIMER: TX REQ TIMEOUT, Current Time = %ld\n", kalGetTimeTick()));
 
     switch (prStaRec->eAuthAssocState) {
     case SAA_STATE_SEND_AUTH1:
@@ -949,8 +933,7 @@ saaFsmRunEventRxRespTimeOut (
     ENUM_AA_STATE_T eNextState;
 
 
-    DBGLOG(SAA, LOUD, ("EVENT-TIMER: RX RESP TIMEOUT, Current Time = %lu\n",
-		(unsigned long)kalGetTimeTick()));
+    DBGLOG(SAA, LOUD, ("EVENT-TIMER: RX RESP TIMEOUT, Current Time = %ld\n", kalGetTimeTick()));
 
     ASSERT(prStaRec);
     if(!prStaRec) {

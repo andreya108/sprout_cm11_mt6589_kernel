@@ -4,7 +4,7 @@
 
 #include "partition_define.h"
 #define MAX_PARTITION_NAME_LEN 64
-#ifdef CONFIG_MTK_EMMC_SUPPORT
+#ifdef MTK_EMMC_SUPPORT
 /*64bit*/
 typedef struct
 {

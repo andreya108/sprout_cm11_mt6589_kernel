@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/common/wlan_lib.c#2 $
 */
 /*! \file   wlan_lib.c
@@ -1801,26 +1787,6 @@ wlanAdapterStart (
 #if CFG_SUPPORT_NVRAM
         /* load manufacture data */
         wlanLoadManufactureData(prAdapter, prRegInfo);
-#endif
-
-#ifdef CONFIG_MTK_TC1_FEATURE//keep alive packet time change from default 30secs to 20secs. //TC01//
-{
-	CMD_SW_DBG_CTRL_T rCmdSwCtrl;
-	rCmdSwCtrl.u4Id = 0x90100000;
-	rCmdSwCtrl.u4Data = 20;
-	//printk( "wlanAdapterStart Keepaliveapcket 0x%x, %d\n", rCmdSwCtrl.u4Id, rCmdSwCtrl.u4Data);
-	wlanSendSetQueryCmd(prAdapter,
-		CMD_ID_SW_DBG_CTRL,
-		TRUE,
-		FALSE,
-		FALSE,
-		NULL,
-		NULL,
-		sizeof(CMD_SW_DBG_CTRL_T),
-		(PUINT_8)(&rCmdSwCtrl),
-		NULL,
-		0);
-}
 #endif
 
 #if (defined(MT5931) && (!CFG_SUPPORT_BCM_BWCS))
@@ -5227,6 +5193,69 @@ wlanLoadManufactureData (
                 (PUINT_8)&rCmdEdgeTxPwrLimit,
                 NULL,
                 0);
+    }
+    /* 8. set 5G band edge tx power if available (add for 6625) */
+    if (prAdapter->fgEnable5GBand){
+#define NVRAM_5G_TX_BANDEDGE_VALID_OFFSET  10
+#define NVRAM_5G_TX_BANDEDGE_OFDM20_OFFSET 11
+#define NVRAM_5G_TX_BANDEDGE_OFDM40_OFFSET 12
+
+        if(prRegInfo->aucEFUSE[NVRAM_5G_TX_BANDEDGE_VALID_OFFSET]) {
+            CMD_EDGE_TXPWR_LIMIT_T rCmdEdgeTxPwrLimit;
+
+            rCmdEdgeTxPwrLimit.cBandEdgeMaxPwrOFDM20
+                = prRegInfo->aucEFUSE[NVRAM_5G_TX_BANDEDGE_OFDM20_OFFSET];
+            rCmdEdgeTxPwrLimit.cBandEdgeMaxPwrOFDM40
+                = prRegInfo->aucEFUSE[NVRAM_5G_TX_BANDEDGE_OFDM40_OFFSET];
+
+            wlanSendSetQueryCmd(prAdapter,
+                    CMD_ID_SET_5G_EDGE_TXPWR_LIMIT,
+                    TRUE,
+                    FALSE,
+                    FALSE,
+                    NULL,
+                    NULL,
+                    sizeof(CMD_EDGE_TXPWR_LIMIT_T),
+                    (PUINT_8)&rCmdEdgeTxPwrLimit,
+                    NULL,
+                    0);
+        }
+    }
+    /* 9. set RSSI compensation */
+    //printk("[frank] RSSI valid(%d) 2G(%d) 5G(%d)",prRegInfo->fgRssiCompensationValidbit,prRegInfo->uc2GRssiCompensation,prRegInfo->uc5GRssiCompensation);
+    if (prRegInfo->fgRssiCompensationValidbit){
+            CMD_RSSI_COMPENSATE_T rCmdRssiCompensate;
+            rCmdRssiCompensate.uc2GRssiCompensation = prRegInfo->uc2GRssiCompensation;
+            rCmdRssiCompensate.uc5GRssiCompensation = prRegInfo->uc5GRssiCompensation;
+            wlanSendSetQueryCmd(prAdapter,
+                    CMD_ID_SET_RSSI_COMPENSATE,
+                    TRUE,
+                    FALSE,
+                    FALSE,
+                    NULL,
+                    NULL,
+                    sizeof(CMD_RSSI_COMPENSATE_T),
+                    (PUINT_8)&rCmdRssiCompensate,
+                    NULL,
+                    0);        
+    }
+    /* 10. notify FW Band Support 5G */
+    if (prAdapter->fgEnable5GBand){            
+            CMD_BAND_SUPPORT_T rCmdBandSupport;
+            rCmdBandSupport.uc5GBandSupport = TRUE;
+
+            wlanSendSetQueryCmd(prAdapter,
+                    CMD_ID_SET_BAND_SUPPORT,
+                    TRUE,
+                    FALSE,
+                    FALSE,
+                    NULL,
+                    NULL,
+                    sizeof(CMD_BAND_SUPPORT_T),
+                    (PUINT_8)&rCmdBandSupport,
+                    NULL,
+                    0);
+
     }
 
     return WLAN_STATUS_SUCCESS;

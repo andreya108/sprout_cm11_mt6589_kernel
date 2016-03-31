@@ -1,17 +1,3 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #ifndef _KD_IMGSENSOR_H
 #define _KD_IMGSENSOR_H
 
@@ -89,6 +75,9 @@
 #define KDIMGSENSORIOC_X_SET_SHUTTER_GAIN_WAIT_DONE   _IOWR(IMGSENSORMAGIC,55,u32)//HDR
 //set mclk
 #define KDIMGSENSORIOC_X_SET_MCLK_PLL         _IOWR(IMGSENSORMAGIC,60,ACDK_SENSOR_MCLK_STRUCT)
+#define KDIMGSENSORIOC_X_GETINFO2            _IOWR(IMGSENSORMAGIC,65,IMAGESENSOR_GETINFO_STRUCT)
+//set open/close sensor index
+#define KDIMGSENSORIOC_X_SET_CURRENT_SENSOR   _IOWR(IMGSENSORMAGIC,70,u32)
 /*******************************************************************************
 *
 ********************************************************************************/
@@ -105,8 +94,8 @@
 #define MT9M111_SENSOR_ID                       0x143A
 #define MT9M112_SENSOR_ID                       0x148C
 #define MT9M113_SENSOR_ID                       0x2480
-#define MT9P012_SENSOR_ID						            0x2800
-#define MT9P012_SENSOR_ID_REV7					        0x2801
+#define MT9P012_SENSOR_ID						0x2800
+#define MT9P012_SENSOR_ID_REV7					0x2801
 #define MT9T012_SENSOR_ID                       0x1600
 #define MT9T013_SENSOR_ID                       0x2600
 #define MT9T113_SENSOR_ID                       0x4680
@@ -155,8 +144,10 @@
 #define OV5647MIPI_SENSOR_ID                        0x5647
 #define OV8825_SENSOR_ID            			0x8825
 #define OV12830_SENSOR_ID			  0xC830
+/*lenovo-sw sunliang modfiy for main backup 2013_10_14 begin*/
+#define OV12830_SENSOR_BACKUP_ID	 (0xC831)
+/*lenovo-sw sunliang modfiy for main backup 2013_10_14 end*/
 #define OV5648MIPI_SENSOR_ID                    0x5648
-#define OV5648MIPI_SENSOR_ID_TRULY              0x564A
 #define OV5693_SENSOR_ID                        0x5690
 
 #define PO6030K_SENSOR_ID                       0x0060
@@ -232,13 +223,16 @@
 #define A5142MIPI_SENSOR_ID                     0x4800
 #define GC0313MIPI_YUV_SENSOR_ID                0xD0
 #define IMX135_SENSOR_ID                        0x0135  
-
+//lenovo.sw wangsx3 20140515 add main backup sensor ov8865
+#define OV8865_SENSOR_ID			  0x8865
+#define OV16825MIPI_SENSOR_ID                       0x0168
+#define IMX220_SENSOR_ID                        0x0220
 #define GC2035_SENSOR_ID			0x2035
-#define  GC0329_SENSOR_ID				0x00c0
-#define S5K5EAYX_YUV_SENSOR_ID             	0x5EA1
-#define HI258MIPI_YUV_SENSOR_ID             0x00d1
-#define OV2680MIPI_SENSOR_ID					      0x2680
-#define OV2680MIPI_SENSOR_ID_KAIMUJIN			  0x2682
+#define GC0329_SENSOR_ID			0xC0
+#define GC0330_SENSOR_ID			0xC1
+#define S5K4H5YX_2LANE_SENSOR_ID                0x485B
+#define MT9V113_MIPI_SENSOR_ID					0x2280   
+
 /* CAMERA DRIVER NAME */
 #define CAMERA_HW_DEVNAME            "kd_camera_hw"
 
@@ -253,6 +247,7 @@
 #define SENSOR_DRVNAME_OV2650_RAW   "ov265x"
 #define SENSOR_DRVNAME_OV2655_YUV   "ov2655yuv"
 #define SENSOR_DRVNAME_OV2659_YUV   "ov2659yuv"
+#define SENSOR_DRVNAME_OV2659_RAW   "ov2659raw"
 #define SENSOR_DRVNAME_OV5650_RAW   	"ov5650raw"
 #define SENSOR_DRVNAME_OV3640_RAW   "ov3640"
 #define SENSOR_DRVNAME_OV3640_YUV    "ov3640yuv"
@@ -265,7 +260,6 @@
 
 #define SENSOR_DRVNAME_OV5647_RAW   	"ov5647"
 #define SENSOR_DRVNAME_OV5648_MIPI_RAW   	"ov5648mipi"
-#define SENSOR_DRVNAME_OV5648_MIPI_RAW_TRULY   	"ov5648mipitruly"
 #define SENSOR_DRVNAME_OV5693_MIPI_RAW     "ov5693mipi"
 #define SENSOR_DRVNAME_OV5642_MIPI_YUV    "ov5642mipiyuv"
 #define SENSOR_DRVNAME_OV5642_MIPI_RGB    "ov5642mipirgb"
@@ -303,19 +297,23 @@
 #define SENSOR_DRVNAME_OV8825_MIPI_RAW   "ov8825mipiraw"
 #define SENSOR_DRVNAME_OV12830_MIPI_RAW   "ov12830mipiraw"
 #define SENSOR_DRVNAME_GC2035_YUV   "gc2035_yuv"
+/*lenovo-sw sunliang modfiy for main backup 2013_10_14 begin*/
+#define SENSOR_DRVNAME_OV12830_MIPI_RAW_BACKUP   "ov12830mipirawbackup"
+/*lenovo-sw sunliang modfiy for main backup 2013_10_14 begin*/
+#define SENSOR_DRVNAME_GC0329_YUV   "gc0329_yuv"
+#define SENSOR_DRVNAME_GC0330_YUV   "gc0330_yuv"
 
 #define SENSOR_DRVNAME_OV9740_MIPI_YUV     "ov9740mipiyuv"
 #define SENSOR_DRVNAME_S5K3H2YX_MIPI_RAW   "s5k3h2yxmipiraw"
 #define SENSOR_DRVNAME_SP0A19_YUV   "sp0a19yuv"
 #define SENSOR_DRVNAME_IMX135_MIPI_RAW   "imx135mipiraw"
+#define SENSOR_DRVNAME_IMX220_MIPI_RAW   "imx220mipiraw"
 #define SENSOR_DRVNAME_GC0313MIPI_YUV      "gc0313mipiyuv"
-#define  SENSOR_DRVNAME_GC0329_YUV   "gc0329yuv"
-#define SENSOR_DRVNAME_S5K5EAYX_YUV   "s5k5eayxyuv"
-#define SENSOR_DRVNAME_HI258_MIPI_YUV    	"hi258mipiyuv"
-#define SENSOR_DRVNAME_OV2680_MIPI_RAW   	"ov2680mipiraw"
-#define SENSOR_DRVNAME_OV2680_MIPI_RAW_KAIMUJIN   	"ov2680mipirawkaimujin"
-#define SENSOR_DRVNAME_OV8825_TRULY_MIPI_RAW "ov8825trulymipiraw"//LINE <> <DATE20130307> <add sensor:truly ov8825> wupingzhou
-#define SENSOR_DRVNAME_OV8826_MIPI_RAW "ov8826mipiraw"//LINE <> <DATE20130408> <add sensor:sunny ov8825 MTM> wupingzhou
+#define SENSOR_DRVNAME_OV16825_MIPI_RAW   "ov16825mipiraw"
+//lenovo.sw wangsx3 20140515 add main backup sensor ov8865
+#define SENSOR_DRVNAME_OV8865_MIPI_RAW   "ov8865mipiraw"
+#define SENSOR_DRVNAME_S5K4H5YX_2LANE_MIPI_RAW  "s5k4h5yx2lanemipiraw"
+#define SENSOR_DRVNAME_MT9V113_MIPI_YUV     "mt9v113mipiyuv"
 /*******************************************************************************
 *
 ********************************************************************************/

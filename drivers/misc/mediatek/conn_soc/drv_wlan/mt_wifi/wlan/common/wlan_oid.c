@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/common/wlan_oid.c#5 $
 */
 
@@ -1678,7 +1664,23 @@ wlanoidSetBssidListScanExt (
     }
 
 	DBGLOG(INIT, TRACE, ("ScanEx\n"));
-	
+
+	/* clear old scan backup results if exists */
+{
+	P_SCAN_INFO_T prScanInfo;
+	P_LINK_T prBSSDescList;
+	P_BSS_DESC_T prBssDesc;
+	prScanInfo = &(prAdapter->rWifiVar.rScanInfo);
+	prBSSDescList = &prScanInfo->rBSSDescList;
+	LINK_FOR_EACH_ENTRY(prBssDesc, prBSSDescList, rLinkEntry, BSS_DESC_T) {
+		if(prBssDesc->eBSSType == BSS_TYPE_INFRASTRUCTURE)
+		{
+			kalMemZero(prBssDesc->aucRawBuf,CFG_RAW_BUFFER_SIZE);
+			prBssDesc->u2RawLength=0;
+		}
+	}
+}
+
     if(pvSetBuffer != NULL && u4SetBufferLen != 0) {
         prScanRequest = (P_PARAM_SCAN_REQUEST_EXT_T)pvSetBuffer;
         prSsid = &(prScanRequest->rSsid);
@@ -3894,7 +3896,7 @@ wlanoidSetPmkid (
     OUT PUINT_32          pu4SetInfoLen
     )
 {
-    UINT_32                i, j;
+    UINT_32               i, j;
     P_PARAM_PMKID_T       prPmkid;
     P_AIS_SPECIFIC_BSS_INFO_T prAisSpecBssInfo;
 
@@ -3966,8 +3968,7 @@ wlanoidSetPmkid (
                 prPmkid->arBSSIDInfo[i].arPMKID,
                 sizeof(PARAM_PMKID_VALUE));
             DBGLOG(RSN, TRACE, ("Add BSSID "MACSTR" idx=%d PMKID value "MACSTR"\n",
-                MAC2STR(prAisSpecBssInfo->arPmkidCache[j].rBssidInfo.arBSSID), (UINT32)j,
-				MAC2STR(prAisSpecBssInfo->arPmkidCache[j].rBssidInfo.arPMKID)));
+                MAC2STR(prAisSpecBssInfo->arPmkidCache[j].rBssidInfo.arBSSID),j,  MAC2STR(prAisSpecBssInfo->arPmkidCache[j].rBssidInfo.arPMKID)));
             prAisSpecBssInfo->arPmkidCache[j].fgPmkidExist = TRUE;
         }
     }
@@ -4784,128 +4785,7 @@ wlanoidQueryRcvCrcError (
             );
     }
 }   /* wlanoidQueryRcvCrcError */
-/*----------------------------------------------------------------------------*/
-/*! \brief  This routine is called to query the current 802.11 statistics.
-*
-* \param[in] pvAdapter Pointer to the Adapter structure
-* \param[in] pvQueryBuf A pointer to the buffer that holds the result of the
-*                          query buffer
-* \param[in] u4QueryBufLen The length of the query buffer
-* \param[out] pu4QueryInfoLen If the call is successful, returns the number of
-*                            bytes written into the query buffer. If the call
-*                            failed due to invalid length of the query buffer,
-*                            returns the amount of storage needed.
-*
-* \retval WLAN_STATUS_SUCCESS
-* \retval WLAN_STATUS_INVALID_LENGTH
-*/
-/*----------------------------------------------------------------------------*/
 
-WLAN_STATUS
-wlanoidQueryStatisticsPL (
-    IN  P_ADAPTER_T       prAdapter,
-    IN  PVOID             pvQueryBuffer,
-    IN  UINT_32           u4QueryBufferLen,
-    OUT PUINT_32          pu4QueryInfoLen
-    )
-{
-    DBGLOG(REQ, LOUD, ("\n"));
-
-    ASSERT(prAdapter);
-    if (u4QueryBufferLen) {
-        ASSERT(pvQueryBuffer);
-    }
-    ASSERT(pu4QueryInfoLen);
-
-    *pu4QueryInfoLen = sizeof(PARAM_802_11_STATISTICS_STRUCT_T);
-
-    if (prAdapter->rAcpiState == ACPI_STATE_D3) {
-        DBGLOG(REQ, WARN, ("Fail in query receive error! (Adapter not ready). ACPI=D%d, Radio=%d\n",
-                    prAdapter->rAcpiState, prAdapter->fgIsRadioOff));
-        *pu4QueryInfoLen = sizeof(UINT_32);
-        return WLAN_STATUS_ADAPTER_NOT_READY;
-    }
-    else if (u4QueryBufferLen < sizeof(PARAM_802_11_STATISTICS_STRUCT_T)) {
-        DBGLOG(REQ, WARN, ("Too short length %ld\n", u4QueryBufferLen));
-        return WLAN_STATUS_INVALID_LENGTH;
-    }
-
-#if CFG_ENABLE_STATISTICS_BUFFERING
-    if(IsBufferedStatisticsUsable(prAdapter) == TRUE) {
-        P_PARAM_802_11_STATISTICS_STRUCT_T prStatistics;
-
-        *pu4QueryInfoLen = sizeof(PARAM_802_11_STATISTICS_STRUCT_T);
-        prStatistics = (P_PARAM_802_11_STATISTICS_STRUCT_T) pvQueryBuffer;
-
-        prStatistics->u4Length = sizeof(PARAM_802_11_STATISTICS_STRUCT_T);
-        prStatistics->rTransmittedFragmentCount
-            = prAdapter->rStatStruct.rTransmittedFragmentCount;
-        prStatistics->rMulticastTransmittedFrameCount
-            = prAdapter->rStatStruct.rMulticastTransmittedFrameCount;
-        prStatistics->rFailedCount
-            = prAdapter->rStatStruct.rFailedCount;
-        prStatistics->rRetryCount
-            = prAdapter->rStatStruct.rRetryCount;
-        prStatistics->rMultipleRetryCount
-            = prAdapter->rStatStruct.rMultipleRetryCount;
-        prStatistics->rRTSSuccessCount
-            = prAdapter->rStatStruct.rRTSSuccessCount;
-        prStatistics->rRTSFailureCount
-            = prAdapter->rStatStruct.rRTSFailureCount;
-        prStatistics->rACKFailureCount
-            = prAdapter->rStatStruct.rACKFailureCount;
-        prStatistics->rFrameDuplicateCount
-            = prAdapter->rStatStruct.rFrameDuplicateCount;
-        prStatistics->rReceivedFragmentCount
-            = prAdapter->rStatStruct.rReceivedFragmentCount;
-        prStatistics->rMulticastReceivedFrameCount
-            = prAdapter->rStatStruct.rMulticastReceivedFrameCount;
-        prStatistics->rFCSErrorCount
-            = prAdapter->rStatStruct.rFCSErrorCount;
-        prStatistics->rTKIPLocalMICFailures.QuadPart
-            = 0;
-        prStatistics->rTKIPICVErrors.QuadPart
-            = 0;
-        prStatistics->rTKIPCounterMeasuresInvoked.QuadPart
-            = 0;
-        prStatistics->rTKIPReplays.QuadPart
-            = 0;
-        prStatistics->rCCMPFormatErrors.QuadPart
-            = 0;
-        prStatistics->rCCMPReplays.QuadPart
-            = 0;
-        prStatistics->rCCMPDecryptErrors.QuadPart
-            = 0;
-        prStatistics->rFourWayHandshakeFailures.QuadPart
-            = 0;
-        prStatistics->rWEPUndecryptableCount.QuadPart
-            = 0;
-        prStatistics->rWEPICVErrorCount.QuadPart
-            = 0;
-        prStatistics->rDecryptSuccessCount.QuadPart
-            = 0;
-        prStatistics->rDecryptFailureCount.QuadPart
-            = 0;
-        return WLAN_STATUS_SUCCESS;
-    }
-    else
-#endif
-    {
-    return wlanSendSetQueryCmd(prAdapter,
-            CMD_ID_GET_STATISTICS_PL,
-            FALSE,
-            TRUE,
-            TRUE,
-            nicCmdEventQueryStatistics,
-            nicOidCmdTimeoutCommon,
-            0,
-            NULL,
-            pvQueryBuffer,
-            u4QueryBufferLen
-            );
-
-    }
-}   /* wlanoidQueryStatistics */
 
 /*----------------------------------------------------------------------------*/
 /*! \brief  This routine is called to query the current 802.11 statistics.
@@ -6012,7 +5892,7 @@ wlanoidSetSwCtrlWrite (
 #if 1 //CFG_MT6573_SMT_TEST
             if (u2SubId == 0x0123) {
 
-                DBGLOG(HAL, INFO, ("set smt fixed rate: %d \n", (UINT32)u4Data));
+                DBGLOG(HAL, INFO, ("set smt fixed rate: %d \n", u4Data));
 
                 if((ENUM_REGISTRY_FIXED_RATE_T)(u4Data) < FIXED_RATE_NUM) {
                     prAdapter->rWifiVar.eRateSetting = (ENUM_REGISTRY_FIXED_RATE_T)(u4Data);
@@ -6955,7 +6835,7 @@ wlanoidSetCurrentPacketFilter (
 
     if (u4SetBufferLen < sizeof(UINT_32)) {
         *pu4SetInfoLen = sizeof(UINT_32);
-	     DBGLOG(REQ, INFO, ("iput buffer is too small"));
+	DBGLOG(REQ, INFO, ("iput buffer is too small"));
         return WLAN_STATUS_INVALID_LENGTH;
     }
     ASSERT(pvSetBuffer);
@@ -8209,7 +8089,7 @@ wlanoidSetNetworkAddress(
         prCmdNetworkAddressList->ucAddressCount = (UINT_8)u4IpAddressCount;
         prNetworkAddress = prNetworkAddressList->arAddress;
 
-        DBGLOG(REQ, INFO, ("u4IpAddressCount (%d)\n", (UINT32)u4IpAddressCount));
+        DBGLOG(REQ, INFO, ("u4IpAddressCount (%d)\n", u4IpAddressCount));
 
         for (i = 0, j = 0 ; i < prNetworkAddressList->u4AddressCount ; i++) {
             if (prNetworkAddress->u2AddressType == PARAM_PROTOCOL_ID_TCP_IP &&
@@ -8906,7 +8786,7 @@ wlanoidSetWapiAssocInfo (
     if (u4SetBufferLen < 20 /* From EID to Group cipher */) {
         prAdapter->rWifiVar.rConnSettings.fgWapiMode = FALSE;
 		DBGLOG(SEC, INFO, ("fgWapiMode = FALSE due to u4SetBufferLen %d < 20!\n",
-				(UINT32)u4SetBufferLen));
+				u4SetBufferLen));
         return WLAN_STATUS_INVALID_LENGTH;
     }
 
@@ -8923,7 +8803,7 @@ wlanoidSetWapiAssocInfo (
     prWapiInfo = (P_WAPI_INFO_ELEM_T)pvSetBuffer;
 
     if (prWapiInfo->ucElemId != ELEM_ID_WAPI) {
-        DBGLOG(SEC, INFO, ("Not WAPI IE ?! u4SetBufferLen = %d\n", (UINT32)u4SetBufferLen));
+        DBGLOG(SEC, INFO, ("Not WAPI IE ?! u4SetBufferLen = %d\n", u4SetBufferLen));
         prAdapter->rWifiVar.rConnSettings.fgWapiMode = FALSE;
         return WLAN_STATUS_INVALID_LENGTH;
     }
@@ -10755,9 +10635,9 @@ wlanSendMemDumpCmd (
 
         DBGLOG(REQ, TRACE, ("[%d] 0x%X, len %d, remain len %d\n",
             ucFragNum,
-            (UINT32)prCmdDumpMem->u4Address,
-            (UINT32)prCmdDumpMem->u4Length,
-            (UINT32)prCmdDumpMem->u4RemainLength));
+            prCmdDumpMem->u4Address,
+            prCmdDumpMem->u4Length,
+            prCmdDumpMem->u4RemainLength));
 
         rStatus = wlanSendSetQueryCmd(prAdapter,
                 CMD_ID_DUMP_MEM,
@@ -10817,8 +10697,7 @@ wlanoidQueryMemDump (
     *pu4QueryInfoLen = sizeof(UINT_32);
 
     prMemDumpInfo = (P_PARAM_CUSTOM_MEM_DUMP_STRUC_T)pvQueryBuffer;
-    DBGLOG(REQ, TRACE, ("Dump 0x%X, len %d\n",
-		(UINT32)prMemDumpInfo->u4Address, (UINT32)prMemDumpInfo->u4Length));
+    DBGLOG(REQ, TRACE, ("Dump 0x%X, len %d\n", prMemDumpInfo->u4Address, prMemDumpInfo->u4Length));
 
     prMemDumpInfo->u4RemainLength = prMemDumpInfo->u4Length;
     prMemDumpInfo->u4Length = 0;
@@ -10864,7 +10743,7 @@ wlanoidSetP2pMode (
 
     ASSERT(prAdapter);
     ASSERT(pu4SetInfoLen);
-    printk("wlanoidSetP2pMode init status=0x%x \n", (UINT32)status);
+    printk("wlanoidSetP2pMode init status=0x%x \n", status);
 
     *pu4SetInfoLen = sizeof(PARAM_CUSTOM_P2P_SET_STRUC_T);
     if (u4SetBufferLen < sizeof(PARAM_CUSTOM_P2P_SET_STRUC_T)) {
@@ -10925,7 +10804,7 @@ wlanoidSetP2pMode (
             (P_MSG_HDR_T)prP2pNetdevRegMsg,
             MSG_SEND_METHOD_BUF);
 #endif
-    printk("wlanoidSetP2pMode return status=0x%x \n", (UINT32)status);
+    printk("wlanoidSetP2pMode return status=0x%x \n", status);
     return status;
 
 }

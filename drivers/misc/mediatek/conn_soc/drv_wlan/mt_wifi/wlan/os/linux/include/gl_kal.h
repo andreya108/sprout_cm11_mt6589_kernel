@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/include/gl_kal.h#1 $
 */
 
@@ -1025,7 +1011,7 @@ typedef UINT_32             KAL_WAKE_LOCK_T, *P_KAL_WAKE_LOCK_T;
 #define TX_TEMP_LOGDUMP8(x, y)
 
 #define RX_ERROR_LOGFUNC(_Fmt...)
-#define RX_WARN_LOGFUNC(_Fmt...)
+#define RX_WARN_LOGFUNC(_Fmt...) xlog_printk(ANDROID_LOG_WARN, XLOG_TAG, _Fmt)
 #define RX_INFO_LOGFUNC(_Fmt...)
 #define RX_STATE_LOGFUNC(_Fmt...)
 #define RX_EVENT_LOGFUNC(_Fmt...)

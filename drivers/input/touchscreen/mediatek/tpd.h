@@ -1,17 +1,3 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -116,7 +102,21 @@ struct tpd_driver_t
  		void (*resume)(struct early_suspend *h);
  		int tpd_have_button;
 		struct tpd_attrs attrs;
+		
+    		int (*tpd_get_fw_version)(void);
+    		void (*tpd_get_fw_vendor_name)(char * fw_vendor_name);		
 };
+
+/*Begin Lenovo-sw wengjun1 add for mediainfo display 2014.01.15 */
+struct tpd_version_info
+{
+    char *name;
+    unsigned int types;
+    unsigned int fw_num;
+};
+extern struct tpd_version_info *tpd_info_t;
+extern unsigned int have_correct_setting;
+/*End Lenovo-sw wengjun1 add for mediainfo display 2014.01.15 */
 
 #if 1 //#ifdef TPD_HAVE_BUTTON
 void tpd_button(unsigned int x, unsigned int y, unsigned int down);

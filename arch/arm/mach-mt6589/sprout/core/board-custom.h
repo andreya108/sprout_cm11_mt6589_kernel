@@ -4,6 +4,8 @@
 #include <linux/autoconf.h>
 #include "mach/mt_freqhopping.h"
 
+#pragma message "board-custom"
+
 /*=======================================================================*/
 /* MT6589 MSDC                                                             */
 /*=======================================================================*/
@@ -11,6 +13,7 @@
 #define CFG_DEV_MSDC0
 #endif
 #define CFG_DEV_MSDC1
+
 //#define CFG_DEV_MSDC2
 #define CFG_DEV_MSDC3
 //#define CFG_DEV_MSDC4

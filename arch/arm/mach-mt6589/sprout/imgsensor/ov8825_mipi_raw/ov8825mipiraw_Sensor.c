@@ -939,6 +939,7 @@ void OV8825VideoSetting(void)
 	OV8825_write_cmos_sensor(0x3f00,0x02);// ;//PSRAM Ctrl0
 	OV8825_write_cmos_sensor(0x3f01,0xfc);// ;//PSRAM Ctrl1
 	OV8825_write_cmos_sensor(0x3f05,0x10);// ;//PSRAM Ctrl5
+	OV8825_write_cmos_sensor(0x4005,0x18);//
 	OV8825_write_cmos_sensor(0x4600,0x04);// ;//VFIFO Ctrl0
 	OV8825_write_cmos_sensor(0x4601,0x00);// ;//VFIFO Read
 	OV8825_write_cmos_sensor(0x4602,0x78);// ;//VFIFO Read
@@ -1672,9 +1673,9 @@ UINT32 OV8825Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	//set mirror & flip
 	//OV8825DB("[OV8825Preview] mirror&flip: %d \n",sensor_config_data->SensorImageMirror);
 	spin_lock(&ov8825mipiraw_drv_lock);
-	ov8825.imgMirror = IMAGE_HV_MIRROR;
+	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov8825mipiraw_drv_lock);
-	OV8825SetFlipMirror(IMAGE_HV_MIRROR);
+	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
 
 	OV8825DBSOFIA("[OV8825Preview]frame_len=%x\n", ((OV8825_read_cmos_sensor(0x380e)<<8)+OV8825_read_cmos_sensor(0x380f)));
 
@@ -1710,9 +1711,9 @@ UINT32 OV8825Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	//write_OV8825_gain(ov8825.pvGain);
 
 	spin_lock(&ov8825mipiraw_drv_lock);
-	ov8825.imgMirror = IMAGE_HV_MIRROR;
+	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov8825mipiraw_drv_lock);
-	OV8825SetFlipMirror(IMAGE_HV_MIRROR);
+	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
 
 	OV8825DBSOFIA("[OV8825Video]frame_len=%x\n", ((OV8825_read_cmos_sensor(0x380e)<<8)+OV8825_read_cmos_sensor(0x380f)));
 
@@ -1753,7 +1754,7 @@ UINT32 OV8825Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 
 	spin_lock(&ov8825mipiraw_drv_lock);
 	ov8825.sensorMode = SENSOR_MODE_CAPTURE;
-	ov8825.imgMirror = IMAGE_HV_MIRROR;
+	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	ov8825.DummyPixels = 0;//define dummy pixels and lines
 	ov8825.DummyLines = 0 ;
 	OV8825_FeatureControl_PERIOD_PixelNum = OV8825_FULL_PERIOD_PIXEL_NUMS + ov8825.DummyPixels;
@@ -1761,7 +1762,7 @@ UINT32 OV8825Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	spin_unlock(&ov8825mipiraw_drv_lock);
 
 	//OV8825DB("[OV8825Capture] mirror&flip: %d\n",sensor_config_data->SensorImageMirror);
-	OV8825SetFlipMirror(IMAGE_HV_MIRROR);
+	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
 
 	//#if defined(MT6575)||defined(MT6577)
     if(OV8825CurrentScenarioId==MSDK_SCENARIO_ID_CAMERA_ZSD)
@@ -1830,7 +1831,7 @@ UINT32 OV8825GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
     pSensorInfo->SensorFullResolutionY= OV8825_IMAGE_SENSOR_FULL_HEIGHT;
 
 	spin_lock(&ov8825mipiraw_drv_lock);
-	ov8825.imgMirror = IMAGE_HV_MIRROR ;
+	ov8825.imgMirror = pSensorConfigData->SensorImageMirror ;
 	spin_unlock(&ov8825mipiraw_drv_lock);
 
    	pSensorInfo->SensorOutputDataFormat= SENSOR_OUTPUT_FORMAT_RAW_B;
@@ -2355,3 +2356,4 @@ UINT32 OV8825_MIPI_RAW_SensorInit(PSENSOR_FUNCTION_STRUCT *pfFunc)
 
     return ERROR_NONE;
 }   /* SensorInit() */
+

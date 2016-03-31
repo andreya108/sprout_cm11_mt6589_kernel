@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/include/gl_wext.h#1 $
 */
 
@@ -406,6 +392,15 @@ wextSrchDesiredRoamingConsortiumIE (
     IN PUINT_8 pucIEStart,
     IN INT_32 i4TotalIeLen,
     OUT PUINT_8 *ppucDesiredIE
+    );
+#endif
+
+#if CFG_SUPPORT_WAPI
+BOOLEAN
+wextSrchDesiredWAPIIE (
+    IN  PUINT_8         pucIEStart,
+    IN  INT_32          i4TotalIeLen,
+    OUT PUINT_8         *ppucDesiredIE
     );
 #endif
 

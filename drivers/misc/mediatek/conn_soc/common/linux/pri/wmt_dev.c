@@ -1,17 +1,3 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
 /*! \file
     \brief brief description
 
@@ -52,9 +38,8 @@
 #include "stp_core.h"
 #include "stp_exp.h"
 #include "bgw_desense.h"
-#if WMT_CREATE_NODE_DYNAMIC
-#include <linux/device.h>
-#endif
+#include <mach/mtk_wcn_cmb_stub.h>
+#include "wmt_idc.h"
 
 #if CONSYS_WMT_REG_SUSPEND_CB_ENABLE
 #include <linux/device.h>
@@ -101,11 +86,6 @@ static struct proc_dir_entry *gWmtAeeEntry = NULL;
 static UINT32 g_buf_len = 0;
 static UINT8 *pBuf = NULL;
 static UINT32 passCnt = 0;
-#endif
-
-#if WMT_CREATE_NODE_DYNAMIC
-struct class * wmt_class = NULL;
-struct device * wmt_dev = NULL;
 #endif
 
 #if CFG_WMT_DBG_SUPPORT
@@ -189,39 +169,6 @@ static int mtk_wmt_resume(struct platform_device *pdev)
 	return 0;
 }
 #endif
-
-
-#ifdef CONFIG_EARLYSUSPEND
-UINT32 g_early_suspend_flag = 0;
-
-static void wmt_dev_early_suspend(struct early_suspend *h)
-{
-    g_early_suspend_flag = 1;
-    WMT_INFO_FUNC("@@@@@@@@@@wmt enter early suspend@@@@@@@@@@@@@@\n");
-}
-
-static void wmt_dev_late_resume(struct early_suspend *h)
-{
-    g_early_suspend_flag = 0;
-    WMT_INFO_FUNC("@@@@@@@@@@wmt enter late resume@@@@@@@@@@@@@@\n");
-}
-
-struct early_suspend wmt_early_suspend_handler = {
-    .suspend = wmt_dev_early_suspend,
-    .resume = wmt_dev_late_resume,
-};
-
-#else
-UINT32 g_early_suspend_flag = 1;
-#endif
-
-MTK_WCN_BOOL wmt_dev_get_early_suspend_state(void)
-{
-    MTK_WCN_BOOL bRet = (0 == g_early_suspend_flag) ? MTK_WCN_BOOL_FALSE : MTK_WCN_BOOL_TRUE;
-    //WMT_INFO_FUNC("bRet:%d\n", bRet);
-    return 	bRet;
-}
-
 
 #if CFG_WMT_DBG_SUPPORT
 
@@ -2383,14 +2330,6 @@ static int WMT_init(void)
     }
     WMT_INFO_FUNC("driver(major %d) installed \n", gWmtMajor);
 
-#if WMT_CREATE_NODE_DYNAMIC
-	wmt_class = class_create(THIS_MODULE,"stpwmt");
-	if(IS_ERR(wmt_class))
-		goto error;
-	wmt_dev = device_create(wmt_class,NULL,devID,NULL,"stpwmt");
-	if(IS_ERR(wmt_dev))
-		goto error;
-#endif
 
 #if 0
     pWmtDevCtx = wmt_drv_create();
@@ -2449,11 +2388,6 @@ static int WMT_init(void)
 	gWmtInitDone = 1;
 	wake_up(&gWmtInitWq);
 
-#ifdef CONFIG_EARLYSUSPEND
-    register_early_suspend(&wmt_early_suspend_handler);
-    WMT_INFO_FUNC("register_early_suspend finished\n");
-#endif
-
 	WMT_INFO_FUNC("success \n");
     return 0;
 
@@ -2462,16 +2396,6 @@ error:
 #if CFG_WMT_DBG_SUPPORT    
     wmt_dev_dbg_remove();
 #endif
-#if WMT_CREATE_NODE_DYNAMIC
-	if(!(IS_ERR(wmt_dev)))
-		device_destroy(wmt_class,devID);
-	if(!(IS_ERR(wmt_class)))
-	{
-		class_destroy(wmt_class);
-		wmt_class = NULL;
-	}
-#endif
-
     if (cdevErr == 0) {
         cdev_del(&gWmtCdev);
     }
@@ -2489,11 +2413,6 @@ error:
 static void WMT_exit (void)
 {
     dev_t dev = MKDEV(gWmtMajor, 0);
-
-#ifdef CONFIG_EARLYSUSPEND
-    unregister_early_suspend(&wmt_early_suspend_handler);
-    WMT_INFO_FUNC("unregister_early_suspend finished\n");
-#endif
 	
 #if CONSYS_WMT_REG_SUSPEND_CB_ENABLE
 	platform_driver_unregister(&mtk_wmt_dev_drv);
@@ -2511,18 +2430,6 @@ static void WMT_exit (void)
 
 #if CFG_WMT_PROC_FOR_AEE
 	wmt_dev_proc_for_aee_remove();
-#endif
-#if WMT_CREATE_NODE_DYNAMIC
-	if(wmt_dev)
-	{
-		device_destroy(wmt_class,dev);
-		wmt_dev = NULL;
-	}
-	if(wmt_class)
-	{
-		class_destroy(wmt_class);
-		wmt_class = NULL;
-	}
 #endif
     cdev_del(&gWmtCdev);
     unregister_chrdev_region(dev, WMT_DEV_NUM);
@@ -2556,6 +2463,7 @@ EXPORT_SYMBOL(mtk_wcn_soc_common_drv_exit);
 module_init(WMT_init);
 module_exit(WMT_exit);
 #endif
+//MODULE_LICENSE("Proprietary");
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("MediaTek Inc WCN");
 MODULE_DESCRIPTION("MTK WCN combo driver for WMT function");

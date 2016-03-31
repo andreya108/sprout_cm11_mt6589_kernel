@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/include/wlan_lib.h#1 $
 */
 
@@ -558,6 +544,11 @@ typedef struct _REG_INFO_T {
     UINT_8              uc2G4BwFixed20M;
     UINT_8              uc5GBwFixed20M;
     UINT_8              ucEnable5GBand;
+    UINT_8              uc2GRssiCompensation;
+    UINT_8              uc5GRssiCompensation;
+    UINT_8              fgRssiCompensationValidbit;
+    UINT_8              ucRxAntennanumber;
+
     // NVRAM - Functional Data -END-
 
 } REG_INFO_T, *P_REG_INFO_T;

@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/ais_fsm.c#1 $
 */
 
@@ -751,7 +737,7 @@
  * Add Send Deauth for Class 3 Error and Leave Network Support
  *
  * 04 15 2010 wh.su
- * [BORA00000680][MT6620] Support the statistic for Mi?soft os query
+ * [BORA00000680][MT6620] Support the statistic for Microsoft os query
  * fixed the protected bit at cap info for ad-hoc.
  *
  * 04 13 2010 kevin.huang
@@ -2238,8 +2224,8 @@ aisFsmSteps (
 
         case AIS_STATE_WAIT_FOR_NEXT_SCAN:
 
-            DBGLOG(AIS, LOUD, ("SCAN: Idle Begin - Current Time = %lu\n",
-				(unsigned long)kalGetTimeTick()));
+            DBGLOG(AIS, LOUD, ("SCAN: Idle Begin - Current Time = %u\n",
+				kalGetTimeTick()));
 
             cnmTimerStartTimer(prAdapter,
                     &prAisFsmInfo->rBGScanTimer,
@@ -2530,8 +2516,7 @@ aisFsmRunEventScanDone (
     ASSERT(prMsgHdr);
 
 	DBGLOG(AIS, WARN, ("ScanDone\n"));
-    DBGLOG(AIS, LOUD, ("EVENT-SCAN DONE: Current Time = %lu\n",
-		(unsigned long)kalGetTimeTick()));
+    DBGLOG(AIS, LOUD, ("EVENT-SCAN DONE: Current Time = %ld\n", kalGetTimeTick()));
 
     prAisFsmInfo = &(prAdapter->rWifiVar.rAisFsmInfo);
     prConnSettings = &(prAdapter->rWifiVar.rConnSettings);
@@ -4153,8 +4138,7 @@ aisFsmRunEventBGSleepTimeOut (
 
     switch (prAisFsmInfo->eCurrentState) {
     case AIS_STATE_WAIT_FOR_NEXT_SCAN:
-        DBGLOG(AIS, LOUD, ("EVENT - SCAN TIMER: Idle End - Current Time = %lu\n",
-			(unsigned long)kalGetTimeTick()));
+        DBGLOG(AIS, LOUD, ("EVENT - SCAN TIMER: Idle End - Current Time = %ld\n", kalGetTimeTick()));
 
         eNextState = AIS_STATE_LOOKING_FOR;
 

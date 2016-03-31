@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/gl_kal.c#3 $
 */
 
@@ -699,9 +685,7 @@
 #include "gl_os.h"
 #include "gl_wext.h"
 #include "precomp.h"
-#if defined(CONFIG_MTK_TC1_FEATURE)
-#include <tc1_partition.h>
-#endif
+
 /*******************************************************************************
 *                              C O N S T A N T S
 ********************************************************************************
@@ -1776,7 +1760,7 @@ kalRxIndicatePkts (
 			DBGLOG(RX, EVENT,
 				("kalRxIndicatePkts got from us!!! Drop it! (["MACSTR"] len %d)\n",
 				MAC2STR(prSkb->data), prSkb->len));
-			kalPacketFree(prGlueInfo, prSkb);
+			nicRxReturnRFB(prGlueInfo->prAdapter, prSkb);
 			return WLAN_STATUS_SUCCESS;
 		}
 
@@ -1835,7 +1819,7 @@ kalRxIndicatePkts (
 *
 */
 /*----------------------------------------------------------------------------*/
-UINT32 ScanCnt = 0, ScanDoneFailCnt = 0;
+UINT_32 ScanCnt = 0, ScanDoneFailCnt = 0;
 VOID
 kalIndicateStatusAndComplete (
     IN P_GLUE_INFO_T    prGlueInfo,
@@ -2306,7 +2290,7 @@ kalSendCompleteAndAwakeQueue (
 
     dev_kfree_skb((struct sk_buff *) pvPacket);
 
-    DBGLOG(TX, EVENT, ("----- pending frame %d -----\n", (INT32)prGlueInfo->i4TxPendingFrameNum));
+    DBGLOG(TX, EVENT, ("----- pending frame %d -----\n", prGlueInfo->i4TxPendingFrameNum));
 
     return;
 }
@@ -2418,7 +2402,7 @@ kalQoSFrameClassifierAndPacketInfo (
     u4PacketLen = prSkb->len;
 
     if (u4PacketLen < ETH_HLEN) {
-        DBGLOG(INIT, WARN, ("Invalid Ether packet length: %u\n", (UINT32)u4PacketLen));
+        DBGLOG(INIT, WARN, ("Invalid Ether packet length: %d\n", u4PacketLen));
         return FALSE;
     }
 
@@ -3250,12 +3234,9 @@ kalRetrieveNetworkAddress(
 
     if(prGlueInfo->fgIsMacAddrOverride == FALSE) {
     #if !defined(CONFIG_X86)
-#if !defined(CONFIG_MTK_TC1_FEATURE)
         UINT_32 i;
-#endif
         BOOLEAN fgIsReadError = FALSE;
 
-#if !defined(CONFIG_MTK_TC1_FEATURE)
         for(i = 0 ; i < MAC_ADDR_LEN ; i+=2) {
             if(kalCfgDataRead16(prGlueInfo,
                         OFFSET_OF(WIFI_CFG_PARAM_STRUCT, aucMacAddress) + i,
@@ -3264,9 +3245,7 @@ kalRetrieveNetworkAddress(
                 break;
             }
         }
-#else
-	TC1_FAC_NAME(FacReadWifiMacAddr)((unsigned char *)prMacAddr);
-#endif
+
         if(fgIsReadError == TRUE) {
             return FALSE;
         }
@@ -4492,8 +4471,7 @@ kalIndicateMgmtTxStatus (
         if ((prGlueInfo == NULL) ||
                 (pucFrameBuf == NULL) ||
                 (u4FrameLen == 0)) {
-            DBGLOG(AIS, TRACE, ("Unexpected pointer PARAM. 0x%lx, 0x%lx, %u.",
-				(unsigned long)prGlueInfo, (unsigned long)pucFrameBuf, (UINT32)u4FrameLen));
+            DBGLOG(AIS, TRACE, ("Unexpected pointer PARAM. 0x%lx, 0x%lx, %ld.", prGlueInfo, pucFrameBuf, u4FrameLen));
             ASSERT(FALSE);
             break;
         }

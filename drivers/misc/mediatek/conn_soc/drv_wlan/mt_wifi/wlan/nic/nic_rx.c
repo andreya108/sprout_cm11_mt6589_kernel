@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/nic/nic_rx.c#3 $
 */
 
@@ -3348,8 +3334,7 @@ nicRxWaitResponse (
     OUT PUINT_32 pu4Length
     )
 {
-    UINT_32 u4Value = 0, u4PktLen = 0;
-	UINT32 i = 0;
+    UINT_32 u4Value = 0, u4PktLen = 0, i = 0;
     WLAN_STATUS u4Status = WLAN_STATUS_SUCCESS;
     BOOL fgResult = TRUE;
     UINT_32 u4Time, u4Current;
@@ -3385,8 +3370,7 @@ nicRxWaitResponse (
             u4Current = (UINT_32)kalGetTimeTick();
 
             if((u4Current > u4Time) && ((u4Current - u4Time) > RX_RESPONSE_TIMEOUT)) {
-				DBGLOG(INIT, ERROR,("RX_RESPONSE_TIMEOUT1 %u %d %lu\n", (UINT32)u4PktLen, i,
-					(unsigned long)u4Current));
+				DBGLOG(INIT, ERROR,("RX_RESPONSE_TIMEOUT1 %u %d %lu\n", (UINT32)u4PktLen, i, u4Current));
                 return WLAN_STATUS_FAILURE;
             }
             else if(u4Current < u4Time && ((u4Current + (0xFFFFFFFF - u4Time)) > RX_RESPONSE_TIMEOUT)) {

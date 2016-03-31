@@ -1610,7 +1610,7 @@ static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *rqc)
 			ret = __blk_end_request(req, 0,
 						brq->data.bytes_xfered);
 			spin_unlock_irq(&md->lock);
-#ifdef MTK_IO_PERFORMANCE_DEBUG
+#ifdef CONFIG_MTK_IO_PERFORMANCE_DEBUG
     if ((1 == g_mtk_mmc_perf_dbg) && (2 == g_mtk_mmc_dbg_range)){
         if ((brq->mrq.cmd->arg >= g_dbg_range_start) && (brq->mrq.cmd->arg <= g_dbg_range_end) && (brq->mrq.data) && (brq->mrq.cmd->opcode == g_check_read_write)){
 			if(rqc)
@@ -1689,7 +1689,7 @@ static int mmc_blk_issue_rw_rq(struct mmc_queue *mq, struct request *rqc)
 			 * prepare it again and resend.
 			 */
 			mmc_blk_rw_rq_prep(mq_rq, card, disable_multi, mq);
-#ifndef MTK_TC1_FEATURE
+#ifndef CONFIG_MTK_TC1_FEATURE
 			mmc_start_req(card->host, &mq_rq->mmc_active, NULL);
 #endif /* MTK_TC1_FEATURE */
 		}
@@ -1920,7 +1920,7 @@ static struct mmc_blk_data *mmc_blk_alloc_req(struct mmc_card *card,
 static struct mmc_blk_data *mmc_blk_alloc(struct mmc_card *card)
 {
 	sector_t size;
-#ifdef MTK_EMMC_SUPPORT
+#ifdef CONFIG_MTK_EMMC_SUPPORT
     unsigned int l_reserve;
 	struct storage_info s_info = {0};
 #endif
@@ -1941,7 +1941,7 @@ static struct mmc_blk_data *mmc_blk_alloc(struct mmc_card *card)
 	}
 
 	if(!mmc_card_sd(card)){
-#ifdef MTK_EMMC_SUPPORT
+#ifdef CONFIG_MTK_EMMC_SUPPORT
             msdc_get_info(EMMC_CARD_BOOT, EMMC_RESERVE, &s_info);
             l_reserve =  s_info.emmc_reserve;
             printk("l_reserve = 0x%x\n", l_reserve);

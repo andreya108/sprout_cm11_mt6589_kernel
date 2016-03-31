@@ -1,16 +1,13 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
+/******************************************************************************
+*[File]             ahb.c
+*[Version]          v1.0
+*[Revision Date]    2013-01-16
+*[Author]
+*[Description]
+*    The program provides AHB HIF driver
+*[Copyright]
+*    Copyright (C) 2013 MediaTek Incorporation. All Rights Reserved.
+******************************************************************************/
 
 
 
@@ -161,7 +158,7 @@
 #elif defined(MT5931)
     #include "mt5931_reg.h"
 #elif defined(MT6628)
-    #include "mtreg.h"
+    #include "mt6582_reg.h"
 #endif
 
 //#define MTK_DMA_BUF_MEMCPY_SUP /* no virt_to_phys() use */
@@ -772,9 +769,9 @@ glGetChipInfo (
 
 	HifInfo = &GlueInfo->rHifInfo;
 	if (HifInfo->ChipID == MTK_CHIP_ID_6571)
-		kalMemCopy(pucChipBuf, "MT6571", strlen("MT6571"));
+		kalMemCopy(pucChipBuf, "6571", strlen("6571"));
 	else if (HifInfo->ChipID == MTK_CHIP_ID_8127)
-		kalMemCopy(pucChipBuf, "MT8127", strlen("MT8127"));
+		kalMemCopy(pucChipBuf, "8127", strlen("8127"));
 	else
 		kalMemCopy(pucChipBuf, "SOC", strlen("SOC"));
 } /* end of glGetChipInfo() */
@@ -1809,6 +1806,7 @@ HifDmaISR(
 * \return void
 */
 /*----------------------------------------------------------------------------*/
+#include <mach/mt_gpio.h>
 
 static int
 HifAhbProbe (
@@ -1824,9 +1822,20 @@ HifAhbProbe (
 
     /* power on WiFi TX PA 3.3V and HIF GDMA clock */
 {
+#ifdef MTK_PMIC_MT6397
+#ifdef MTK_EXTERNAL_LDO
+	mt_set_gpio_mode(GPIO51, GPIO_MODE_04); 
+	mt_set_gpio_dir(GPIO51, GPIO_DIR_OUT); 
+	mt_set_gpio_pull_enable(GPIO51, GPIO_PULL_ENABLE);
+	mt_set_gpio_pull_select(GPIO51, GPIO_PULL_UP);
+#else
+	hwPowerOn(MT65XX_POWER_LDO_VGP4,VOL_3300,"WLAN");
+#endif
+#else
     extern void upmu_set_vcn33_on_ctrl_wifi(UINT32 val);
     hwPowerOn(MT6323_POWER_LDO_VCN33_WIFI, VOL_3300, "WLAN");
     upmu_set_vcn33_on_ctrl_wifi(1); /* switch to HW mode */
+#endif
 
 //    enable_clock(MT_CG_APDMA_SW_CG, "WLAN");
 //    if (pfWlanDmaOps != NULL)
@@ -1870,9 +1879,20 @@ HifAhbRemove (
     pfWlanRemove();
 
 {
+#ifdef MTK_PMIC_MT6397
+#ifdef MTK_EXTERNAL_LDO
+	mt_set_gpio_mode(GPIO51, GPIO_MODE_04); 
+	mt_set_gpio_dir(GPIO51, GPIO_DIR_OUT); 
+	mt_set_gpio_pull_enable(GPIO51, GPIO_PULL_ENABLE);
+	mt_set_gpio_pull_select(GPIO51, GPIO_PULL_DOWN);
+#else
+	hwPowerDown(MT65XX_POWER_LDO_VGP4,"WLAN");
+#endif
+#else
     extern void upmu_set_vcn33_on_ctrl_wifi(UINT32 val);
     upmu_set_vcn33_on_ctrl_wifi(0); /* switch to SW mode */
     hwPowerDown(MT6323_POWER_LDO_VCN33_WIFI, "WLAN");
+#endif
 
 //    disable_clock(MT_CG_APDMA_SW_CG, "WLAN");
 //    if (pfWlanDmaOps != NULL)

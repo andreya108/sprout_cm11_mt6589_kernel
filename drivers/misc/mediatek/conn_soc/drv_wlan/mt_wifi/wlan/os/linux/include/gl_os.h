@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/include/gl_os.h#2 $
 */
 
@@ -607,7 +593,7 @@
 #endif
 
 
-#include "os_debug.h"
+#include "debug.h"
 
 #include "wlan_lib.h"
 #include "wlan_oid.h"
@@ -900,11 +886,6 @@ struct _GLUE_INFO_T {
     BOOLEAN                 fgIs6Dad;
     UINT_8                  aucDADipv6[16];
 #endif
-    BOOLEAN                 fgPoorlinkValid;
-    UINT_64                 u8Statistic[2];
-    UINT_64                 u8TotalFailCnt;
-    UINT_32                 u4LinkspeedThreshold;
-    INT_32                  i4RssiThreshold;
 
 };
 

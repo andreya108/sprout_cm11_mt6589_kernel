@@ -1,21 +1,22 @@
 # ---------------------------------------------------
 # Compile Options
 # ---------------------------------------------------
+include $(MTK_PATH_BUILD)/Makefile
 ccflags-y += -DLINUX -DMT6628
 
-ifeq ($(CONFIG_MTK_WAPI_SUPPORT), y)
+ifeq ($(MTK_WAPI_SUPPORT), yes)
     ccflags-y += -DCFG_SUPPORT_WAPI=1
 else
     ccflags-y += -DCFG_SUPPORT_WAPI=0
 endif
 
-ifeq ($(CONFIG_HAVE_XLOG_FEATURE), y)
+ifeq ($(HAVE_XLOG_FEATURE), yes)
     ccflags-y += -DCFG_SUPPORT_XLOG=1
 else
     ccflags-y += -DCFG_SUPPORT_XLOG=0
 endif
 
-ifeq ($(CONFIG_HAVE_AEE_FEATURE), y)
+ifeq ($(HAVE_AEE_FEATURE), yes)
     ccflags-y += -DCFG_SUPPORT_AEE=1
 else
     ccflags-y += -DCFG_SUPPORT_AEE=0
@@ -43,9 +44,6 @@ ccflags-y += -DDBG=0
 ccflags-y += -I$(src)/os -I$(src)/os/linux/include -I$(src)/os/linux/hif/ahb/include
 ccflags-y += -I$(src)/include -I$(src)/include/nic -I$(src)/include/mgmt
 
-# add public include path
-include $(srctree)/drivers/misc/mediatek/Makefile.custom
-
 obj-$(CONFIG_MTK_COMBO_WIFI) += $(MODULE_NAME).o
 #obj-m += $(MODULE_NAME).o if CONFIG_MTK_COMBO_WIFI=m ==> obj-m means ko module, not build in obj-y
 
@@ -57,8 +55,8 @@ OS_DIR      := os/linux/
 HIF_DIR	    := os/linux/hif/ahb/
 NIC_DIR     := nic/
 MGMT_DIR    := mgmt/
-#DMA_DIR     := ../../../../../../platform/$(call lc,$(CONFIG_MTK_PLATFORM))/kernel/drivers/wifi/
-#$(call lc,$(CONFIG_MTK_PLATFORM))
+DMA_DIR     := ../../../../../../platform/$(call lc,$(MTK_PLATFORM))/kernel/drivers/wifi/
+#$(call lc,$(MTK_PLATFORM))
 
 
 # ---------------------------------------------------
@@ -137,7 +135,7 @@ MGMT_OBJS += $(MGMT_DIR)p2p_assoc.o \
              $(MGMT_DIR)p2p_state.o        
                  
 
-ifeq ($(CONFIG_MTK_WAPI_SUPPORT), y)
+ifeq ($(MTK_WAPI_SUPPORT), yes)
 MGMT_OBJS += $(MGMT_DIR)wapi.o
 endif
 
@@ -147,7 +145,7 @@ endif
 
 HIF_OBJS :=  $(HIF_DIR)arm.o \
              $(HIF_DIR)ahb.o \
-             $(HIF_DIR)/$(MTK_PLATFORM)/ahb_pdma.o
+             $(DMA_DIR)ahb_pdma.o
 
 $(MODULE_NAME)-objs  += $(COMMON_OBJS)
 $(MODULE_NAME)-objs  += $(NIC_OBJS)

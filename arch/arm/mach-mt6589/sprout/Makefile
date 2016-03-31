@@ -4,7 +4,7 @@ include $(srctree)/drivers/misc/mediatek/Makefile.custom
 # Module project related part
 
 ifeq ($(CONFIG_MTK_CM36283),y)
-obj-y	+=  alsps/cm36283/
+#obj-y	+=  alsps/cm36283/
 endif
 
 ifeq ($(CONFIG_MTK_TMD2771),y)

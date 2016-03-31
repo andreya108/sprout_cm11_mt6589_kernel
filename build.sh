@@ -1,5 +1,8 @@
 #!/bin/bash
 # Default settings
+
+PATH=$PWD/prebuilts/arm-linux-androideabi-4.7/bin:$PATH
+
 verfile="android.ver"
 curcfg=".config"
 release="n"

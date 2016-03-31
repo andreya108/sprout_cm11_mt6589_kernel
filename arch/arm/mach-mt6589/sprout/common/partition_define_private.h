@@ -10,21 +10,21 @@ static const struct excel_info PartInfo_Private[PART_NUM]={
 			{"protect_s",10485760,0x1d00000, EMMC, 3,USER},
 			{"seccfg",131072,0x2700000, EMMC, 0,USER},
 			{"uboot",393216,0x2720000, EMMC, 0,USER},
-			{"bootimg",11534336,0x2780000, EMMC, 0,USER},
-			{"recovery",11534336,0x3280000, EMMC, 0,USER},
-			{"sec_ro",6291456,0x3d80000, EMMC, 4,USER},
-			{"misc",524288,0x4380000, EMMC, 0,USER},
-			{"logo",3145728,0x4400000, EMMC, 0,USER},
-			{"ebr2",524288,0x4700000, EMMC, 0,USER},
-			{"expdb",10485760,0x4780000, EMMC, 0,USER},
-			{"android",1073741824,0x5180000, EMMC, 5,USER},
-			{"cache",132120576,0x45180000, EMMC, 6,USER},
-			{"usrdata",2147483648,0x4cf80000, EMMC, 7,USER},
-			{"fat",0,0xccf80000, EMMC, 8,USER},
+			{"bootimg",16777216,0x2780000, EMMC, 0,USER},
+			{"recovery",16777216,0x3780000, EMMC, 0,USER},
+			{"sec_ro",6291456,0x4780000, EMMC, 4,USER},
+			{"preload",4194304,0x4d80000, EMMC, 5,USER},
+			{"misc",524288,0x5180000, EMMC, 0,USER},
+			{"logo",3145728,0x5200000, EMMC, 0,USER},
+			{"ebr2",524288,0x5500000, EMMC, 0,USER},
+			{"expdb",10485760,0x5580000, EMMC, 0,USER},
+			{"android",939524096,0x5f80000, EMMC, 6,USER},
+			{"cache",132120576,0x3df80000, EMMC, 7,USER},
+			{"usrdata",2452619264,0x45d80000, EMMC, 8,USER},
 			{"bmtpool",22020096,0xFFFF00a8, EMMC, 0,USER},
  };
 
-#ifdef  CONFIG_MTK_EMMC_SUPPORT
+#ifdef  MTK_EMMC_SUPPORT
 struct MBR_EBR_struct MBR_EBR_px[MBR_COUNT]={
 	{"mbr", {1, 2, 3, 4, }},
 	{"ebr1", {5, 6, 7, }},

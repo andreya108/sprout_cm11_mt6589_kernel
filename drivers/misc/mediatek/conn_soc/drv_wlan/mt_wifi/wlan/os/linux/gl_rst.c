@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: @(#) gl_rst.c@@
 */
 
@@ -58,15 +44,14 @@
 *                    E X T E R N A L   R E F E R E N C E S
 ********************************************************************************
 */
-#include <linux/poll.h>
-#include <net/netlink.h>
-#include <net/genetlink.h>
-
 #include "gl_os.h"
-#include "os_debug.h"
+#include "debug.h"
 #include "wlan_lib.h"
 #include "gl_wext.h"
 #include "precomp.h"
+#include <linux/poll.h>
+#include <net/netlink.h>
+#include <net/genetlink.h>
 
 #if CFG_CHIP_RESET_SUPPORT
 
@@ -106,14 +91,15 @@ enum {
 *                            P U B L I C   D A T A
 ********************************************************************************
 */
-BOOLEAN fgIsResetting = FALSE;
 
 /*******************************************************************************
 *                           P R I V A T E   D A T A
 ********************************************************************************
 */
-static int num_bind_process;
+static UINT_32 mtk_wifi_seqnum = 0;
+static int num_bind_process = 0;
 static pid_t bind_pid[MAX_BIND_PROCESS];
+BOOLEAN fgIsResetting = FALSE;
 static struct work_struct work_rst;
 
 /* attribute policy */
@@ -136,8 +122,8 @@ static int mtk_wifi_bind(
     struct genl_info *info
     );
 
-static void mtk_wifi_reset(
-    struct work_struct *work
+static int mtk_wifi_reset(
+    void
     );
 
 /* operation definition */
@@ -191,13 +177,12 @@ glResetCallback (
     unsigned int        u4MsgLength
     );
 
-/*
 static BOOLEAN
 glResetSendMessage (
     char    *aucMsg,
     u8      cmd
     );
-*/
+
 
 /*******************************************************************************
 *                              F U N C T I O N S
@@ -295,12 +280,14 @@ glResetCallback (
     unsigned int        u4MsgLength
     )
 {
-    switch (eMsgType) {
+    switch(eMsgType)
+    {
     case WMTMSG_TYPE_RESET:
-        if (u4MsgLength == sizeof(ENUM_WMTRSTMSG_TYPE_T)) {
+        if(u4MsgLength == sizeof(ENUM_WMTRSTMSG_TYPE_T)){
             P_ENUM_WMTRSTMSG_TYPE_T prRstMsg = (P_ENUM_WMTRSTMSG_TYPE_T) prMsgBody;
 
-            switch (*prRstMsg) {
+            switch(*prRstMsg)
+            {
             case WMTRSTMSG_RESET_START:
                 DBGLOG(INIT, WARN, ("Whole chip reset start!\n"));
                 fgIsResetting = TRUE;
@@ -340,7 +327,6 @@ glResetCallback (
  *          FALSE
  */
 /*----------------------------------------------------------------------------*/
-#if 0
 static BOOLEAN
 glResetSendMessage(
     char *  aucMsg,
@@ -349,8 +335,8 @@ glResetSendMessage(
 {
     struct sk_buff *skb = NULL;
     void *msg_head = NULL;
-    int rc = -1, i;
-    static UINT_32 mtk_wifi_seqnum;
+    int rc = -1;
+    int i;
 
     if(num_bind_process == 0) {
         /* no listening process */
@@ -390,7 +376,7 @@ glResetSendMessage(
 
     return TRUE;
 }
-#endif
+
 
 /*----------------------------------------------------------------------------*/
 /*!
@@ -434,7 +420,7 @@ int mtk_wifi_bind(
         bind_pid[num_bind_process] = info->snd_pid;
 #endif
         num_bind_process++;
-    }
+        }
     else {
         DBGLOG(INIT, WARN, ("%s(): exceeding binding limit %d\n", __func__, MAX_BIND_PROCESS));
     }
@@ -455,12 +441,11 @@ out:
  *          nonzero
  */
 /*----------------------------------------------------------------------------*/
-void mtk_wifi_reset(
-    struct work_struct *work
+int mtk_wifi_reset(
+    void
     )
 {
-    wifi_reset_end();
-    return;
+    return wifi_reset_end();
 }
 
 
@@ -478,7 +463,7 @@ glSendResetRequest(
     VOID
     )
 {
-    /* WMT thread would trigger whole chip resetting itself */
+    // WMT thread would trigger whole chip resetting itself
     return;
 }
 
@@ -502,4 +487,4 @@ kalIsResetting(
 }
 
 
-#endif /* CFG_CHIP_RESET_SUPPORT */
+#endif // CFG_CHIP_RESET_SUPPORT

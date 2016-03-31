@@ -22,6 +22,7 @@
 #define PART_BOOTIMG "BOOTIMG" 
 #define PART_RECOVERY "RECOVERY" 
 #define PART_SEC_RO "SEC_RO" 
+#define PART_PRELOAD "PRELOAD" 
 #define PART_MISC "MISC" 
 #define PART_LOGO "LOGO" 
 #define PART_EBR2 "EBR2" 
@@ -29,7 +30,6 @@
 #define PART_ANDROID "ANDROID" 
 #define PART_CACHE "CACHE" 
 #define PART_USRDATA "USRDATA" 
-#define PART_FAT "FAT" 
 #define PART_BMTPOOL "BMTPOOL" 
 /*preloader re-name*/
 #define PART_SECURE "SECURE" 
@@ -55,18 +55,18 @@
 #define PART_SIZE_SECCFG			(128*KB)
 #define PART_OFFSET_SECCFG			(0x2700000)
 #define PART_SIZE_UBOOT			(384*KB)
-#define PART_SIZE_BOOTIMG			(11264*KB)
-#define PART_SIZE_RECOVERY			(11264*KB)
+#define PART_SIZE_BOOTIMG			(16384*KB)
+#define PART_SIZE_RECOVERY			(16384*KB)
 #define PART_SIZE_SEC_RO			(6144*KB)
-#define PART_OFFSET_SEC_RO			(0x3d80000)
+#define PART_OFFSET_SEC_RO			(0x4780000)
+#define PART_SIZE_PRELOAD			(4096*KB)
 #define PART_SIZE_MISC			(512*KB)
 #define PART_SIZE_LOGO			(3072*KB)
 #define PART_SIZE_EBR2			(512*KB)
 #define PART_SIZE_EXPDB			(10240*KB)
-#define PART_SIZE_ANDROID			(1048576*KB)
+#define PART_SIZE_ANDROID			(917504*KB)
 #define PART_SIZE_CACHE			(129024*KB)
-#define PART_SIZE_USRDATA			(2097152*KB)
-#define PART_SIZE_FAT			(0*KB)
+#define PART_SIZE_USRDATA			(2395136*KB)
 #define PART_SIZE_BMTPOOL			(0xa8)
 
 
@@ -104,7 +104,7 @@ struct excel_info{
 	unsigned int partition_idx;
 	Region region;
 };
-#ifdef  CONFIG_MTK_EMMC_SUPPORT
+#ifdef  MTK_EMMC_SUPPORT
 /*MBR or EBR struct*/
 #define SLOT_PER_MBR 4
 #define MBR_COUNT 8

@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: @(#) p2p_scan.c@@
 */
 
@@ -670,19 +656,22 @@ scanP2pProcessBeaconAndProbeResp(
     P_P2P_CONNECTION_SETTINGS_T prP2pConnSettings = (P_P2P_CONNECTION_SETTINGS_T)NULL;
     prP2pBssInfo = &(prAdapter->rWifiVar.arBssInfo[NETWORK_TYPE_P2P_INDEX]);
     prP2pConnSettings = prAdapter->rWifiVar.prP2PConnSettings;
+	BOOLEAN fgIsSkipThisBeacon=FALSE;
 
     if (prBssDesc->fgIsP2PPresent) {
+		if((prP2pBssInfo->eCurrentOPMode == OP_MODE_INFRASTRUCTURE) &&     // P2P GC
+                (prP2pBssInfo->eConnectionState == PARAM_MEDIA_STATE_CONNECTED) &&   // Connected
+                ((prWlanBeaconFrame->u2FrameCtrl & MASK_FRAME_TYPE) == MAC_FRAME_BEACON)) {  // TX Beacon
+
+	 			 fgIsSkipThisBeacon=TRUE;
+    	}    
 
         if ((!prP2pBssInfo->ucDTIMPeriod) &&          // First time.
-            (prP2pBssInfo->eCurrentOPMode == OP_MODE_INFRASTRUCTURE) &&     // P2P GC
-                (prP2pBssInfo->eConnectionState == PARAM_MEDIA_STATE_CONNECTED) &&   // Connected
-                ((prWlanBeaconFrame->u2FrameCtrl & MASK_FRAME_TYPE) == MAC_FRAME_BEACON) &&  // TX Beacon
-                EQUAL_SSID(prBssDesc->aucSSID,                                                                  // SSID Match
+        	fgIsSkipThisBeacon				  					&&
+        	(EQUAL_SSID(prBssDesc->aucSSID,                                                                  
                             prBssDesc->ucSSIDLen,
                             prP2pConnSettings->aucSSID,
-                            prP2pConnSettings->ucSSIDLen)) {
-
-
+                            prP2pConnSettings->ucSSIDLen))) {// SSID Match
             prP2pBssInfo->ucDTIMPeriod = prBssDesc->ucDTIMPeriod;
             nicPmIndicateBssConnected(prAdapter, NETWORK_TYPE_P2P_INDEX);
         }
@@ -695,14 +684,17 @@ scanP2pProcessBeaconAndProbeResp(
 			if (((prWlanBeaconFrame->u2FrameCtrl & MASK_FRAME_TYPE) != MAC_FRAME_PROBE_RSP)) {
                 // Only report Probe Response frame to supplicant.
                 /* Probe response collect much more information. */
+				
+					if (fgIsSkipThisBeacon || prBssDesc->eBand==BAND_2G4) {
                 break;
             }
+	        }
 
             rChannelInfo.ucChannelNum = prBssDesc->ucChannelNum;
             rChannelInfo.eBand = prBssDesc->eBand;
 			prBssDesc->fgIsP2PReport = TRUE;
 
-			DBGLOG(P2P, INFO, ("indicate %s\n", prBssDesc->aucSSID));
+			DBGLOG(P2P, INFO, ("indicate %s [%d]\n", prBssDesc->aucSSID,prBssDesc->ucChannelNum));
 
             kalP2PIndicateBssInfo(prAdapter->prGlueInfo,
                             (PUINT_8)prSwRfb->pvHeader,

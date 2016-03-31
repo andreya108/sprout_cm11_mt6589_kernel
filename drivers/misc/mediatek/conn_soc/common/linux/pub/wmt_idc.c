@@ -1,16 +1,3 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
 
 #include "wmt_idc.h"
 #include "wmt_lib.h"
@@ -122,7 +109,6 @@ INT32 wmt_idc_msg_to_lte_handing(VOID)
 	if(readlen > 0)
 	{
 		WMT_INFO_FUNC("read data len from fw(%d)\n",readlen);
-		wmt_idc_dump_debug_msg("WMT->LTE from STP buffer",&gWmtIdcInfo.buffer[0],readlen);
 		p_data = &gWmtIdcInfo.buffer[0];
 		
 		while(handle_len < readlen)
@@ -130,7 +116,7 @@ INT32 wmt_idc_msg_to_lte_handing(VOID)
 			p_data += 2;/*omit direction & opcode 2 bytes*/
 			osal_memcpy(&msg_len,p_data,2);
 			msg_len -= 1;/*flag byte*/
-			WMT_INFO_FUNC("current raw data len(%d) from connsys firmware\n",msg_len);
+			WMT_INFO_FUNC("current package len(%d) to lte\n",msg_len);
 
 			p_data += 2;/*length: 2 bytes*/
 
@@ -154,7 +140,7 @@ INT32 wmt_idc_msg_to_lte_handing(VOID)
 					return -1;
 				}
 			
-				p_lps->msg_len = msg_len + osal_sizeof(local_para_struct);
+				p_lps->msg_len = msg_len;
 
 				opcode = *p_data;
 				WMT_INFO_FUNC("current opcode(%d) to LTE\n",opcode);
@@ -170,13 +156,7 @@ INT32 wmt_idc_msg_to_lte_handing(VOID)
 						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_OPER_DEFAULT_PARAM_IND;
 						break;
 					case WMT_IDC_RX_OPCODE_BTWF_CHAN_RAN:
-						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_OPER_FREQ_IND;
-						break;
-					case WMT_IDC_RX_OPCODE_LTE_FREQ_IDX_TABLE:
-						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_FREQ_IDX_TABLE_IND;
-						break;
-					case WMT_IDC_RX_OPCODE_BTWF_PROFILE_IND:
-						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_PROFILE_IND;
+						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_LTE_TX_ALLOW_IND;
 						break;
 					//case WMT_IDC_RX_OPCODE_TDM_REQ:
 					//	gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_OPER_FREQ_IND;
@@ -228,7 +208,7 @@ UINT32 wmt_idc_msg_to_lte_handing_for_test(UINT8 *p_buf,UINT32 len)
 			p_data += 2;/*omit direction & opcode 2 bytes*/
 			osal_memcpy(&msg_len,p_data,2);
 			msg_len -= 1;/*flag byte*/
-			WMT_INFO_FUNC("current raw data len(%d) from connsys firmware\n",msg_len);
+			WMT_INFO_FUNC("current package len(%d) to lte\n",msg_len);
 
 			p_data += 2;/*length: 2 bytes*/
 
@@ -252,7 +232,7 @@ UINT32 wmt_idc_msg_to_lte_handing_for_test(UINT8 *p_buf,UINT32 len)
 					return -1;
 				}
 			
-				p_lps->msg_len = msg_len + osal_sizeof(local_para_struct);
+				p_lps->msg_len = msg_len;
 
 				opcode = *p_data;
 				WMT_INFO_FUNC("current opcode(%d) to LTE\n",opcode);
@@ -268,7 +248,7 @@ UINT32 wmt_idc_msg_to_lte_handing_for_test(UINT8 *p_buf,UINT32 len)
 						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_OPER_DEFAULT_PARAM_IND;
 						break;
 					case WMT_IDC_RX_OPCODE_BTWF_CHAN_RAN:
-						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_OPER_FREQ_IND;
+						gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_LTE_TX_ALLOW_IND;
 						break;
 					//case WMT_IDC_RX_OPCODE_TDM_REQ:
 					//	gWmtIdcInfo.iit.msg_id = IPC_MSG_ID_EL1_WIFIBT_OPER_FREQ_IND;

@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/include/nic_cmd_event.h#1 $
 */
 
@@ -741,16 +727,16 @@ typedef enum _ENUM_CMD_ID_T {
     CMD_ID_SET_TXPWR_CTRL,              /* 0x38 (Set) */
     CMD_ID_SET_AUTOPWR_CTRL,            /* 0x39 (Set) */
     CMD_ID_SET_WFD_CTRL  ,              /* 0x3A (Set) */
-    CMD_ID_SET_5G_EDGE_TXPWR_LIMIT = 0x3B,/* 0x3B (Set) */
-
+    CMD_ID_SET_5G_EDGE_TXPWR_LIMIT,     /* 0x3B (Set) */
+    CMD_ID_SET_RSSI_COMPENSATE,         /* 0x3C (Set) */
+    CMD_ID_SET_BAND_SUPPORT = 0x3D,     /* 0x3D (Set) */
     CMD_ID_GET_NIC_CAPABILITY = 0x80,   /* 0x80 (Query) */
     CMD_ID_GET_LINK_QUALITY,            /* 0x81 (Query) */
     CMD_ID_GET_STATISTICS,              /* 0x82 (Query) */
     CMD_ID_GET_CONNECTION_STATUS,       /* 0x83 (Query) */
     CMD_ID_GET_ASSOC_INFO,              /* 0x84 (Query) (obsolete) */
     CMD_ID_GET_STA_STATISTICS = 0x85,   /* 0x85 (Query) */
-    CMD_ID_GET_DEBUG_CODE = 0x86,		/* 0x86 (Query) */
-    CMD_ID_GET_STATISTICS_PL = 0x89,    /* 0x87 (Query) */
+	CMD_ID_GET_DEBUG_CODE = 0x86,		/* 0x86 (Query) */
 
     CMD_ID_BASIC_CONFIG = 0xc1,         /* 0xc1 (Set / Query) */
     CMD_ID_ACCESS_REG,                  /* 0xc2 (Set / Query) */
@@ -1651,6 +1637,19 @@ typedef struct _CMD_EDGE_TXPWR_LIMIT_T {
     INT_8       cBandEdgeMaxPwrOFDM40;
     INT_8       cReserved;
 } CMD_EDGE_TXPWR_LIMIT_T, *P_CMD_EDGE_TXPWR_LIMIT_T;
+
+typedef struct _CMD_RSSI_COMPENSATE_T {
+    UINT_8       uc2GRssiCompensation;
+    UINT_8       uc5GRssiCompensation;
+    UINT_8       ucRssiCompensationValidbit;
+    UINT_8       cReserved;
+} CMD_RSSI_COMPENSATE_T, *P_CMD_RSSI_COMPENSATE_T;
+
+typedef struct _CMD_BAND_SUPPORT_T {
+    UINT_8       uc5GBandSupport;
+    UINT_8       cReserved[3];
+} CMD_BAND_SUPPORT_T, *P_CMD_BAND_SUPPORT_T;
+
 
 typedef struct _CMD_SET_DEVICE_MODE_T {
     UINT_16     u2ChipID;

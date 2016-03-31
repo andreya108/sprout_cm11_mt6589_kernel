@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/os/linux/gl_wext.c#3 $
 */
 
@@ -3665,13 +3651,7 @@ wext_set_encode_ext (
         }
 
         /* PN */
-{
-		UINT32 i;
-		for(i=0; i<IW_ENCODE_SEQ_MAX_SIZE; i++)
-			prWpiKey->aucPN[i] = prIWEncExt->tx_seq[i];
-		for(i=0; i<IW_ENCODE_SEQ_MAX_SIZE; i++)
-			prWpiKey->aucPN[IW_ENCODE_SEQ_MAX_SIZE+i] = prIWEncExt->rx_seq[i];
-}
+        memcpy(prWpiKey->aucPN, prIWEncExt->tx_seq, IW_ENCODE_SEQ_MAX_SIZE * 2);
 
         /* BSSID */
         memcpy(prWpiKey->aucAddrIndex, prIWEncExt->addr.sa_data, 6);

@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/scan.c#3 $
 */
 
@@ -476,7 +462,7 @@
  * [PM] Support U-APSD for STA mode
  *
  * 05 28 2010 wh.su
- * [BORA00000680][MT6620] Support the statistic for Mi?soft os query
+ * [BORA00000680][MT6620] Support the statistic for Microsoft os query
  * adding the TKIP disallow join a HT AP code.
  *
  * 05 14 2010 kevin.huang
@@ -508,7 +494,7 @@
  * Add new HW CH macro support
  *
  * 04 06 2010 wh.su
- * [BORA00000680][MT6620] Support the statistic for Mi?soft os query
+ * [BORA00000680][MT6620] Support the statistic for Microsoft os query
  * fixed the firmware return the broadcast frame at wrong tc.
  *
  * 03 29 2010 wh.su

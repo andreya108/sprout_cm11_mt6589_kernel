@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/BRANCHES/MT6620_WIFI_DRIVER_V2_3/mgmt/rsn.c#2 $
 */
 
@@ -1009,16 +995,16 @@ rsnPerformPolicySelection (
 #if DBG
         else {
             DBGLOG(RSN, TRACE, ("Inproper encryption status %d for group-key-only BSS\n",
-                (UINT_8)prAdapter->rWifiVar.rConnSettings.eEncStatus));
+                prAdapter->rWifiVar.rConnSettings.eEncStatus));
         }
 #endif
     }
     else {
         fgSuiteSupported = FALSE;
 
-        DBGLOG(RSN, TRACE, ("eEncStatus %d %d 0x%x\n", (UINT_8)prAdapter->rWifiVar.rConnSettings.eEncStatus,
-            (UINT32)prBssRsnInfo->u4PairwiseKeyCipherSuiteCount,
-            (UINT32)prBssRsnInfo->au4PairwiseKeyCipherSuite[0]));
+        DBGLOG(RSN, TRACE, ("eEncStatus %d %d 0x%x\n", prAdapter->rWifiVar.rConnSettings.eEncStatus,
+            prBssRsnInfo->u4PairwiseKeyCipherSuiteCount,
+            prBssRsnInfo->au4PairwiseKeyCipherSuite[0]));
         /* Select pairwise/group ciphers */
         switch (prAdapter->rWifiVar.rConnSettings.eEncStatus)
         {
@@ -1551,7 +1537,7 @@ rsnGenerateRSNIE (
                 RSN_IE(pucBuffer)->ucLength = 38;
                 WLAN_SET_FIELD_16(cp, 1); // PMKID count
                 cp += 2;
-                DBGLOG(RSN, TRACE, ("BSSID "MACSTR" ind=%d\n", MAC2STR(prStaRec->aucMacAddr), (UINT32)u4Entry));
+                DBGLOG(RSN, TRACE, ("BSSID "MACSTR" ind=%d\n", MAC2STR(prStaRec->aucMacAddr), u4Entry));
                 DBGLOG(RSN, TRACE, ("use PMKID "MACSTR"\n", MAC2STR(prAdapter->rWifiVar.rAisSpecificBssInfo.arPmkidCache[u4Entry].rBssidInfo.arPMKID)));
                 kalMemCopy(cp, (PVOID)prAdapter->rWifiVar.rAisSpecificBssInfo.arPmkidCache[u4Entry].rBssidInfo.arPMKID,
                     sizeof(PARAM_PMKID_VALUE));
@@ -2171,7 +2157,7 @@ rsnGeneratePmkidIndication (
             prPmkidEvent->arCandidateList[count].u4Flags =
                 prAisSpecificBssInfo->arPmkidCandicate[i].u4PreAuthFlags;
             DBGLOG(RSN, TRACE, (MACSTR" %d\n", MAC2STR(prPmkidEvent->arCandidateList[count].arBSSID),
-                (UINT32)prPmkidEvent->arCandidateList[count].u4Flags));
+                prPmkidEvent->arCandidateList[count].u4Flags));
             count++;
         }
     }
@@ -2179,7 +2165,7 @@ rsnGeneratePmkidIndication (
     /* PMKID Candidate List */
     prPmkidEvent->u4Version = 1;
     prPmkidEvent->u4NumCandidates = count;
-    DBGLOG(RSN, TRACE, ("rsnGeneratePmkidIndication #%d\n", (UINT32)prPmkidEvent->u4NumCandidates));
+    DBGLOG(RSN, TRACE, ("rsnGeneratePmkidIndication #%d\n", prPmkidEvent->u4NumCandidates));
     u4LenOfUsedBuffer = sizeof(ENUM_STATUS_TYPE_T) + (2 * sizeof(UINT_32)) +
         (count * sizeof(PARAM_PMKID_CANDIDATE_T));
     //dumpMemory8((PUINT_8)prAdapter->aucIndicationEventBuffer, u4LenOfUsedBuffer);

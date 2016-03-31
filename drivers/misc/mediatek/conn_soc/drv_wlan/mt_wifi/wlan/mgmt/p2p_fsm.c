@@ -1,18 +1,4 @@
 /*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/*
 ** $Id: //Department/DaVinci/TRUNK/WiFi_P2P_Driver/mgmt/p2p_fsm.c#61 $
 */
 
@@ -1041,8 +1027,7 @@ p2pFsmUninit (
         wlanAcquirePowerControl(prAdapter);
 
         /* Release all pending CMD queue. */
-        DBGLOG(P2P, TRACE, ("p2pFsmUninit: wlanProcessCommandQueue, num of element:%d\n",
-			(UINT32)prAdapter->prGlueInfo->rCmdQueue.u4NumElem));
+        DBGLOG(P2P, TRACE, ("p2pFsmUninit: wlanProcessCommandQueue, num of element:%d\n", prAdapter->prGlueInfo->rCmdQueue.u4NumElem));
         wlanProcessCommandQueue(prAdapter, &prAdapter->prGlueInfo->rCmdQueue);
 
         wlanReleasePowerControl(prAdapter);
@@ -1949,6 +1934,8 @@ p2pFsmRunEventStartAP (
                 prChnlReqInfo->ucReqChnlNum = prP2pSpecificBssInfo->ucPreferredChannel;
                 prChnlReqInfo->eBand = prP2pSpecificBssInfo->eRfBand;
                 prChnlReqInfo->eChannelReqType = CHANNEL_REQ_TYPE_GO_START_BSS;
+				
+				DBGLOG(P2P, INFO,("p2pFsmRunEventStartAP GO Scan \n"));
             }
             
             /* If channel is specified, use active scan to shorten the scan time. */
@@ -2584,12 +2571,8 @@ p2pFsmRunEventJoinComplete (
                     //4 <1.6> Indicate Connected Event to Host immediately.
                     /* Require BSSID, Association ID, Beacon Interval.. from AIS_BSS_INFO_T */
                     //p2pIndicationOfMediaStateToHost(prAdapter, PARAM_MEDIA_STATE_CONNECTED, prStaRec->aucMacAddr);
-                    if(prP2pFsmInfo->prTargetBss) {
-                        scanReportBss2Cfg80211(prAdapter,OP_MODE_P2P_DEVICE,prP2pFsmInfo->prTargetBss);
-						
-                        prP2pFsmInfo->u4DelscanCount = 0;
-                    }
-				
+                    if(prP2pFsmInfo->prTargetBss)
+					scanReportBss2Cfg80211(prAdapter,OP_MODE_P2P_DEVICE,prP2pFsmInfo->prTargetBss);
                     kalP2PGCIndicateConnectionStatus(prAdapter->prGlueInfo,
                                                                     &prP2pFsmInfo->rConnReqInfo,
                                                                     prJoinInfo->aucIEBuf,
@@ -3101,9 +3084,9 @@ p2pFsmRunEventWfdSettingUpdate (
         DBGLOG(P2P, INFO,("WFD Enalbe %x info %x state %x flag %x adv %x\n", 
                     prWfdCfgSettings->ucWfdEnable,
                     prWfdCfgSettings->u2WfdDevInfo, 
-                    (UINT32)prWfdCfgSettings->u4WfdState, 
-                    (UINT32)prWfdCfgSettings->u4WfdFlag, 
-                    (UINT32)prWfdCfgSettings->u4WfdAdvancedFlag));
+                    prWfdCfgSettings->u4WfdState, 
+                    prWfdCfgSettings->u4WfdFlag, 
+                    prWfdCfgSettings->u4WfdAdvancedFlag));
 
         rStatus = wlanSendSetQueryCmd (
                         prAdapter,                  /* prAdapter */

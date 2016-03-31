@@ -1,17 +1,3 @@
-/*
-* Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
-* GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-* without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-* See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with this program.
-* If not, see <http://www.gnu.org/licenses/>.
-*/
-
 /*! \file
     \brief  Declaration of library functions
 
@@ -432,8 +418,6 @@ static UCHAR WMT_SET_SDIO_DRV_REG_EVT[] = {0x02, 0x08, 0x04, 0x00/*length*/
 #if CFG_WMT_WIFI_5G_SUPPORT
 static UCHAR WMT_GET_SOC_ADIE_CHIPID_CMD[] = {0x01,0x13,0x04,0x00,0x02,0x04,0x24,0x00};
 static UCHAR WMT_GET_SOC_ADIE_CHIPID_EVT[] = {0x02,0x13,0x09,0x00,0x00,0x02,0x04,0x24,0x00,0x00,0x00,0x00,0x00};
-static UCHAR WMT_GET_SOC_6625_L_CMD[] = {0x01,0x13,0x04,0x00,0x02,0x04,0x20,0x01};
-static UCHAR WMT_GET_SOC_6625_L_EVT[] = {0x02,0x13,0x09,0x00,0x00,0x02,0x04,0x20,0x01,0x00,0x00,0x00,0x00};
 #endif
 
 #if CFG_WMT_PATCH_DL_OPTM
@@ -448,37 +432,22 @@ static UCHAR WMT_SET_MCU_CLK_DIS_EVT[] = {0x02,0x08,0x04,0x00,0x00,0x00,0x00,0x0
 #endif
 
 #if CFG_WMT_FILTER_MODE_SETTING
-
-static UCHAR WMT_COEX_SPLIT_FILTER_CMD_TEST[] = {0x01,0x10,0x19,0x00,0x0F,0x00,0x00,
+static UCHAR WMT_COEX_SPLIT_FILTER_CMD[] = {0x01,0x10,0x19,0x00,0x0F,0x00,0x00,
 					0x00,0x00,0x6c,0x09,0x8a,0x09,0x8a,0x09,0x9e,0x09,0x01,
 					0x07,0x07,0x0b,0x07,0x07,0x00,0x32,0x27,0x4e,0x27,0x32};
-static UCHAR WMT_COEX_FILTER_SPEC_CMD_TEST[] = {0x01,0x10,0x45,0x00,0x11,0x00,0x00,
+static UCHAR WMT_COEX_FILTER_SPEC_CMD[] = {0x01,0x10,0x45,0x00,0x11,0x00,0x00,
 					0x01,0x00,0x07,0x07,0x07,0x54,0x54,0x00,0x00,0x00,0x50,
 					0x50,0x50,0x54,0x54,0x39,0x39,0x39,0x02,0x02,0x02,0x0e,
 					0x0e,0x01,0x01,0x01,0x0e,0x0e,0x0e,0x0e,0x0e,0x0a,
 					0x0a,0x0a,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 					0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
 					0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-static UCHAR WMT_COEX_LTE_FREQ_IDX_TABLE_CMD_TEST[] = {0x01,0x10,0x21,0x00,0x12,
+static UCHAR WMT_COEX_LTE_FREQ_IDX_TABLE_CMD[] = {0x01,0x10,0x21,0x00,0x12,
 					0xfc,0x08,0x15,0x09,0x2e,0x09,0x47,0x09,0xc4,0x09,0xdd,
 					0x09,0xf6,0x09,0x0f,0xaf,0x14,0x09,0x2d,0x09,0x46,0x09,
 					0x5f,0x09,0xdd,0x09,0xf5,0x09,0x0d,0x0a,0x27,0x0a};
-static UCHAR WMT_COEX_LTE_CHAN_UNSAFE_CMD_TEST[] = {0x01,0x10,0x02,0x00,0x13,0x00};
-static UCHAR WMT_COEX_EXT_COMPONENT_CMD_TEST[] = {0x01,0x10,0x03,0x00,0x0d,0x7f,0x03};
-
-static UCHAR WMT_COEX_FILTER_SPEC_CMD_0[] = {0x01,0x10,0x45,0x00,0x11,0x00,0x00,
-					0x01,0x00,0x16,0x16,0x16,0x16,0x00,0x00,0x00,0x00,0x63,
-					0x63,0x63,0x63,0x63,0x63,0x63,0x63,0x04,0x04,0x04,0x04,
-					0x01,0x01,0x01,0x01,0x0e,0x0e,0x0e,0x0e,0x0e,0x0e,
-					0x0e,0x0e,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-					0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-					0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-static UCHAR WMT_COEX_LTE_FREQ_IDX_TABLE_CMD_0[] = {0x01,0x10,0x21,0x00,0x12,
-					0xfc,0x08,0x15,0x09,0x2e,0x09,0x47,0x09,0xc4,0x09,0xdd,
-					0x09,0xf6,0x09,0x0f,0xaf,0x14,0x09,0x2d,0x09,0x46,0x09,
-					0x5f,0x09,0xdd,0x09,0xf5,0x09,0x0d,0x0a,0x27,0x0a};
-static UCHAR WMT_COEX_TDM_REQ_ANTSEL_NUM_CMD[] = {0x01,0x10,0x02,0x00,0x14,0x00};
-static UCHAR WMT_COEX_IS_LTE_PROJ_CMD[] = {0x01,0x10,0x02,0x00,0x15,0x01};
+static UCHAR WMT_COEX_LTE_CHAN_UNSAFE_CMD[] = {0x01,0x10,0x02,0x00,0x13,0x00};
+static UCHAR WMT_COEX_EXT_COMPONENT_CMD[] = {0x01,0x10,0x03,0x00,0x0d,0x7f,0x03};
 static UCHAR WMT_COEX_SPLIT_MODE_EVT[] = {0x02,0x10,0x01,0x00,0x00};
 #endif
 
@@ -568,23 +537,11 @@ static struct init_script set_mcuclk_table_2[] =
 #if CFG_WMT_FILTER_MODE_SETTING
 static struct init_script set_wifi_lte_coex_table_0[] = 
 {
-#if 0
-    INIT_CMD(WMT_COEX_SPLIT_FILTER_CMD_TEST, WMT_COEX_SPLIT_MODE_EVT, "wifi lte coex split filter"),
-	INIT_CMD(WMT_COEX_FILTER_SPEC_CMD_TEST, WMT_COEX_SPLIT_MODE_EVT, "wifi lte coex filter spec"),
-	INIT_CMD(WMT_COEX_LTE_FREQ_IDX_TABLE_CMD_TEST, WMT_COEX_SPLIT_MODE_EVT, "wifi lte freq idx"),
-	INIT_CMD(WMT_COEX_LTE_CHAN_UNSAFE_CMD_TEST, WMT_COEX_SPLIT_MODE_EVT, "wifi lte channel unsafe"),
-	INIT_CMD(WMT_COEX_EXT_COMPONENT_CMD_TEST,WMT_COEX_SPLIT_MODE_EVT,"wifi coex ext component"),
-#endif
-	INIT_CMD(WMT_COEX_FILTER_SPEC_CMD_0, WMT_COEX_SPLIT_MODE_EVT, "wifi lte coex filter spec"),
-	INIT_CMD(WMT_COEX_LTE_FREQ_IDX_TABLE_CMD_0, WMT_COEX_SPLIT_MODE_EVT, "wifi lte freq idx"),
-};
-static struct init_script is_lte_project_table[] =
-{
-	INIT_CMD(WMT_COEX_IS_LTE_PROJ_CMD,WMT_COEX_SPLIT_MODE_EVT,"is LTE project or not"),
-};
-static struct init_script get_tdm_req_antsel_num_table[] =
-{
-	INIT_CMD(WMT_COEX_TDM_REQ_ANTSEL_NUM_CMD,WMT_COEX_SPLIT_MODE_EVT,"get tdm req antsel num"),
+    INIT_CMD(WMT_COEX_SPLIT_FILTER_CMD, WMT_COEX_SPLIT_MODE_EVT, "wifi lte coex split filter"),
+	INIT_CMD(WMT_COEX_FILTER_SPEC_CMD, WMT_COEX_SPLIT_MODE_EVT, "wifi lte coex filter spec"),
+	INIT_CMD(WMT_COEX_LTE_FREQ_IDX_TABLE_CMD, WMT_COEX_SPLIT_MODE_EVT, "wifi lte freq idx"),
+	INIT_CMD(WMT_COEX_LTE_CHAN_UNSAFE_CMD, WMT_COEX_SPLIT_MODE_EVT, "wifi lte channel unsafe"),
+	INIT_CMD(WMT_COEX_EXT_COMPONENT_CMD,WMT_COEX_SPLIT_MODE_EVT,"wifi coex ext component"),
 };
 #endif
 
@@ -888,19 +845,10 @@ mtk_wcn_soc_sw_init (
 #if CFG_WMT_FILTER_MODE_SETTING
 	if((0x6582 == wmt_ic_ops_soc.icId) || (0x6592 == wmt_ic_ops_soc.icId))
 	{
-		wmt_stp_wifi_lte_coex();
-	}
-	/*get gpio tdm req antsel number*/
-	ctrlPa1 = 0;
-	ctrlPa2 = 0;
-	wmt_core_ctrl(WMT_CTRL_GET_TDM_REQ_ANTSEL,&ctrlPa1,&ctrlPa2);
-	WMT_INFO_FUNC("get GPIO TDM REQ ANTSEL number(%d)\n",ctrlPa1);
-	/*set gpio tdm req antsel number to firmware*/
-	WMT_COEX_TDM_REQ_ANTSEL_NUM_CMD[5] = ctrlPa1;
-	iRet = wmt_core_init_script(get_tdm_req_antsel_num_table,osal_array_size(get_tdm_req_antsel_num_table));
-	if(iRet)
-	{
-		WMT_ERR_FUNC("get_tdm_req_antsel_num_table fail(%d)\n",iRet);	
+		if(wmt_core_get_flag_for_test() > 0)
+		{
+			wmt_stp_wifi_lte_coex();
+		}
 	}
 #endif
 	/* 7. start RF calibration data*/
@@ -1025,22 +973,6 @@ mtk_wcn_soc_sw_init (
         osal_memcpy(&aDieChipid,&evtbuf[u4Res - 2],2);
         WMT_INFO_FUNC("get SOC A die chipid(0x%x)\n",aDieChipid);
 
-		if(0x6625 == aDieChipid)
-		{
-			iRet = wmt_core_tx((PUINT8)&WMT_GET_SOC_6625_L_CMD[0], sizeof(WMT_GET_SOC_6625_L_CMD), &u4Res, MTK_WCN_BOOL_FALSE);
-			if (iRet || (u4Res != sizeof(WMT_GET_SOC_6625_L_CMD))) {
-				WMT_ERR_FUNC("wmt_core:read A die efuse CMD fail(%d),size(%d)\n", iRet, u4Res);
-			}
-			osal_memset(evtbuf, 0, sizeof(evtbuf));
-			iRet = wmt_core_rx(evtbuf,sizeof(WMT_GET_SOC_6625_L_EVT), &u4Res);
-			if (iRet || (u4Res != sizeof(WMT_GET_SOC_6625_L_EVT))) {
-				WMT_ERR_FUNC("wmt_core:read A die efuse EVT fail(%d),size(%d)\n", iRet, u4Res);
-			}
-
-			WMT_INFO_FUNC("read SOC Adie Efuse(0x120) value:0x%2x,0x%2x,0x%2x,0x%2x -> %s\n",
-				evtbuf[u4Res-4],evtbuf[u4Res-3],evtbuf[u4Res-2],evtbuf[u4Res-1],
-				(evtbuf[u4Res-2]&0x30)==0x01 ? "MT6625L" : "MT6625");
-		}
 		/* get PMIC chipid */
 
 		ctrlData.ctrlId = WMT_CTRL_SOC_PALDO_CTRL;
@@ -1494,11 +1426,9 @@ wmt_stp_wifi_lte_coex (VOID)
         return 0;
     }
 
-	osal_sleep_ms(5);
-
 	if(pWmtGenConf->coex_wmt_filter_mode == 0)
 	{
-    	iRet = wmt_core_init_script(set_wifi_lte_coex_table_0, osal_array_size(set_wifi_lte_coex_table_0));
+    	iRet = wmt_core_init_script(set_wifi_lte_coex_table_0, sizeof(set_wifi_lte_coex_table_0)/sizeof(set_wifi_lte_coex_table_0[0]));
 		if(iRet)
 		{
 			WMT_ERR_FUNC("wmt_core:set_wifi_lte_coex_table_0 fail(%d)\n",iRet);
@@ -1507,16 +1437,6 @@ wmt_stp_wifi_lte_coex (VOID)
 			WMT_INFO_FUNC("wmt_core:set_wifi_lte_coex_table_0 ok\n");
 		}
 	}
-
-	iRet = wmt_core_init_script(is_lte_project_table,osal_array_size(is_lte_project_table));
-	if(iRet)
-	{
-		WMT_ERR_FUNC("wmt_core:is_lte_project_table fail(%d)\n",iRet);
-	}else
-	{
-		WMT_INFO_FUNC("wmt_core:is_lte_project_table ok\n");
-	}
-	
     return iRet;
 }
 #endif

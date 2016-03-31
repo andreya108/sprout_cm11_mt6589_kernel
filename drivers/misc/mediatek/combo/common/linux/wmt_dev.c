@@ -46,6 +46,8 @@
 #define WMT_DEV_NUM 1
 #define WMT_DEV_INIT_TO_MS (2 * 1000)
 
+#define REMOVE_MK_NODE 1
+
 #if CFG_WMT_PROC_FOR_AEE
 static struct proc_dir_entry *gWmtAeeEntry = NULL;
 #define WMT_AEE_PROCNAME "driver/wmt_aee"
@@ -112,7 +114,7 @@ ssize_t wmt_aee_read(struct file *filp, char __user *buf, size_t count, loff_t *
 	}
 
     if (g_buf_len >= count) {
-		
+
 		retval = copy_to_user(buf, pBuf, count);
         if (retval)
         {
@@ -120,15 +122,15 @@ ssize_t wmt_aee_read(struct file *filp, char __user *buf, size_t count, loff_t *
         	retval = -EFAULT;
         	goto err_exit;
         }
-		
+
         *f_pos += count;
         g_buf_len -= count;
         pBuf += count;
         WMT_INFO_FUNC("wmt_dev:after read,wmt for aee buffer len(%d)\n", g_buf_len);
-		
+
         retval = count;
     } else if (0 != g_buf_len){
-    
+
 		retval = copy_to_user(buf, pBuf, g_buf_len);
         if (retval)
         {
@@ -136,7 +138,7 @@ ssize_t wmt_aee_read(struct file *filp, char __user *buf, size_t count, loff_t *
         	retval = -EFAULT;
         	goto err_exit;
         }
-		
+
         *f_pos += g_buf_len;
         len = g_buf_len;
         g_buf_len = 0;
@@ -197,7 +199,7 @@ static int wmt_dev_proc_for_aee_read(char *page, char **start, off_t off, int co
             return len;
         }
     }
-    
+
     return len;
 }
 
@@ -497,29 +499,29 @@ MTK_WCN_BOOL wmt_dev_is_file_exist(UCHAR *pFileName)
 
 }
 
-static unsigned long count_last_access_sdio = 0;    
+static unsigned long count_last_access_sdio = 0;
 static unsigned long count_last_access_uart = 0;
 static unsigned long jiffies_last_poll = 0;
 
 static INT32 wmt_dev_tra_sdio_update(void)
-{          
-    count_last_access_sdio += 1;  
+{
+    count_last_access_sdio += 1;
     //WMT_INFO_FUNC("jiffies_last_access_sdio: jiffies = %ul\n", jiffies);
 
     return 0;
 }
 
 extern INT32 wmt_dev_tra_uart_update(void)
-{          
-    count_last_access_uart += 1;  
+{
+    count_last_access_uart += 1;
     //WMT_INFO_FUNC("jiffies_last_access_uart: jiffies = %ul\n", jiffies);
 
     return 0;
 }
 
 static UINT32 wmt_dev_tra_sdio_poll(void)
-{    
-    #define TIME_THRESHOLD_TO_TEMP_QUERY 3000 
+{
+    #define TIME_THRESHOLD_TO_TEMP_QUERY 3000
     #define COUNT_THRESHOLD_TO_TEMP_QUERY 200
 
     unsigned long sdio_during_count = 0;
@@ -528,27 +530,27 @@ static UINT32 wmt_dev_tra_sdio_poll(void)
     if(jiffies > jiffies_last_poll)
     {
         poll_during_time = jiffies - jiffies_last_poll;
-    } 
-    else 
+    }
+    else
     {
         poll_during_time = 0xffffffff;
     }
 
-   WMT_DBG_FUNC("**jiffies_to_mesecs(0xffffffff) = %lu\n", 
+   WMT_DBG_FUNC("**jiffies_to_mesecs(0xffffffff) = %lu\n",
             jiffies_to_msecs(0xffffffff));
 
     if(jiffies_to_msecs(poll_during_time) < TIME_THRESHOLD_TO_TEMP_QUERY)
     {
-        WMT_DBG_FUNC("**poll_during_time = %lu < %lu, not to query\n", 
+        WMT_DBG_FUNC("**poll_during_time = %lu < %lu, not to query\n",
             jiffies_to_msecs(poll_during_time), TIME_THRESHOLD_TO_TEMP_QUERY);
         return -1;
-    } 
-      
+    }
+
     sdio_during_count = count_last_access_sdio;
 
     if(sdio_during_count < COUNT_THRESHOLD_TO_TEMP_QUERY)
     {
-        WMT_DBG_FUNC("**sdio_during_count = %lu < %lu, not to query\n", 
+        WMT_DBG_FUNC("**sdio_during_count = %lu < %lu, not to query\n",
             sdio_during_count, COUNT_THRESHOLD_TO_TEMP_QUERY);
         return -1;
     }
@@ -556,7 +558,7 @@ static UINT32 wmt_dev_tra_sdio_poll(void)
     count_last_access_sdio = 0;
     jiffies_last_poll = jiffies;
 
-    WMT_INFO_FUNC("**poll_during_time = %lu > %lu, sdio_during_count = %lu > %lu, query\n", 
+    WMT_INFO_FUNC("**poll_during_time = %lu > %lu, sdio_during_count = %lu > %lu, query\n",
             jiffies_to_msecs(poll_during_time), TIME_THRESHOLD_TO_TEMP_QUERY,
             jiffies_to_msecs(sdio_during_count) , COUNT_THRESHOLD_TO_TEMP_QUERY);
 
@@ -565,7 +567,7 @@ static UINT32 wmt_dev_tra_sdio_poll(void)
 
 #if 0
 static UINT32 wmt_dev_tra_uart_poll(void)
-{   
+{
     //we not support the uart case.
     return -1;
 }
@@ -576,7 +578,7 @@ INT32 wmt_dev_tm_temp_query(void)
     #define HISTORY_NUM       5
     #define TEMP_THRESHOLD   65
     #define REFRESH_TIME    300 //sec
-    
+
     static INT32 temp_table[HISTORY_NUM] = {99}; //not query yet.
     static INT32 idx_temp_table = 0;
     static struct timeval query_time, now_time;
@@ -586,7 +588,7 @@ INT32 wmt_dev_tm_temp_query(void)
     INT32 index = 0;
 
     //Query condition 1:
-    // If we have the high temperature records on the past, we continue to query/monitor 
+    // If we have the high temperature records on the past, we continue to query/monitor
     // the real temperature until cooling
     for(index = 0; index < HISTORY_NUM ; index++)
     {
@@ -594,7 +596,7 @@ INT32 wmt_dev_tm_temp_query(void)
        {
             query_cond = 1;
             WMT_INFO_FUNC("high temperature (current temp = %d), we must keep querying temp temperature..\n", temp_table[index]);
-       }            
+       }
     }
 
     do_gettimeofday(&now_time);
@@ -630,26 +632,26 @@ INT32 wmt_dev_tm_temp_query(void)
         }
         #endif
     }
- #endif   
+ #endif
     // Query condition 3:
     // If the query time exceeds the a certain of period, refresh temp table.
     //
     if(!query_cond)
     {
         if( (now_time.tv_sec < query_time.tv_sec) || //time overflow, we refresh temp table again for simplicity!
-            ((now_time.tv_sec > query_time.tv_sec) && 
+            ((now_time.tv_sec > query_time.tv_sec) &&
             (now_time.tv_sec - query_time.tv_sec) > REFRESH_TIME))
-        {               
+        {
             query_cond = 1;
 
             WMT_INFO_FUNC("It is long time (> %d sec) not to query, we must query temp temperature..\n", REFRESH_TIME);
             for (index = 0; index < HISTORY_NUM ; index++)
             {
-                temp_table[index] = 99;                
+                temp_table[index] = 99;
             }
         }
     }
-        
+
     if(query_cond)
     {
         // update the temperature record
@@ -667,18 +669,18 @@ INT32 wmt_dev_tm_temp_query(void)
     {
         current_temp = temp_table[idx_temp_table];
         idx_temp_table = (idx_temp_table + 1) % HISTORY_NUM;
-        temp_table[idx_temp_table] = current_temp;             
+        temp_table[idx_temp_table] = current_temp;
     }
 
     //
     // Dump information
-    //    
+    //
     WMT_DBG_FUNC("[Thermal] idx_temp_table = %d \n", idx_temp_table);
     WMT_DBG_FUNC("[Thermal] now.time = %d, query.time = %d, REFRESH_TIME = %d\n", now_time.tv_sec, query_time.tv_sec, REFRESH_TIME);
 
-    WMT_DBG_FUNC("[0] = %d, [1] = %d, [2] = %d, [3] = %d, [4] = %d \n----\n", 
+    WMT_DBG_FUNC("[0] = %d, [1] = %d, [2] = %d, [3] = %d, [4] = %d \n----\n",
         temp_table[0], temp_table[1], temp_table[2], temp_table[3], temp_table[4]);
-    
+
     return current_temp;
 }
 
@@ -813,7 +815,7 @@ WMT_unlocked_ioctl (
     switch(cmd) {
     case WMT_IOCTL_SET_PATCH_NAME: /* patch location */
         {
-            
+
             if (copy_from_user(pBuffer, (void *)arg, NAME_MAX)) {
                 iRet = -EFAULT;
                 break;
@@ -947,7 +949,7 @@ WMT_unlocked_ioctl (
                 wmt_lib_put_op_to_free_queue(pOp);
                 return -1;
             }
-            
+
             bRet = wmt_lib_put_act_op(pOp);
             ENABLE_PSM_MONITOR();
             if (MTK_WCN_BOOL_FALSE == bRet) {
@@ -1029,7 +1031,7 @@ WMT_unlocked_ioctl (
         }
         break;
 #endif
-        
+
         case 10:
         {
 			wmt_lib_host_awake_get();
@@ -1049,8 +1051,8 @@ WMT_unlocked_ioctl (
 			wmt_lib_host_awake_put();
         }
         break;
-        
-            
+
+
         case WMT_IOCTL_GET_CHIP_INFO:
         {
             if (0 == arg)
@@ -1078,7 +1080,7 @@ WMT_unlocked_ioctl (
 
 		}
 		break;
-		
+
         case WMT_IOCTL_SET_PATCH_NUM: {
 			pAtchNum = arg;
 			WMT_INFO_FUNC(" get patch num from launcher = %d\n",pAtchNum);
@@ -1096,12 +1098,12 @@ WMT_unlocked_ioctl (
 			P_WMT_PATCH_INFO pTemp = NULL;
 			UINT32 dWloadSeq;
 			static UINT32 counter = 0;
-			
+
 			if (!pPatchInfo) {
 				WMT_ERR_FUNC("NULL patch info pointer\n");
 				break;
 			}
-            
+
             if (copy_from_user(&wMtPatchInfo, (void *)arg, sizeof(WMT_PATCH_INFO))) {
                 WMT_ERR_FUNC("copy_from_user failed at %d\n", __LINE__);
                 iRet = -EFAULT;
@@ -1117,8 +1119,8 @@ WMT_unlocked_ioctl (
 				counter = 0;
 			}
 		}
-		break; 
-		
+		break;
+
         case WMT_IOCTL_PORT_NAME: {
             CHAR cUartName[NAME_MAX + 1];
             if (copy_from_user(cUartName, (void *)arg, NAME_MAX)) {
@@ -1129,7 +1131,7 @@ WMT_unlocked_ioctl (
             wmt_lib_set_uart_name(cUartName);
         }
         break;
-		
+
 		case WMT_IOCTL_WMT_CFG_NAME:
 		{
 			CHAR cWmtCfgName[NAME_MAX + 1];
@@ -1155,7 +1157,7 @@ WMT_unlocked_ioctl (
 			#if !(DELETE_HIF_SDIO_CHRDEV)
 			iRet = mtk_wcn_hif_sdio_tell_chipid(arg);
 			#endif
-			
+
 			if (0x6628 == arg || 0x6630 == arg)
 			{
 			    wmt_lib_merge_if_flag_ctrl(1);
@@ -1191,7 +1193,7 @@ WMT_unlocked_ioctl (
 static int WMT_open(struct inode *inode, struct file *file)
 {
     LONG ret;
-	
+
     WMT_INFO_FUNC("major %d minor %d (pid %d)\n",
         imajor(inode),
         iminor(inode),
@@ -1239,7 +1241,7 @@ struct file_operations gWmtFops = {
     .poll = WMT_poll,
 };
 
-#if REMOVE_MK_NODE
+#ifdef REMOVE_MK_NODE
 struct class * wmt_class = NULL;
 #endif
 
@@ -1248,7 +1250,7 @@ static int WMT_init(void)
     dev_t devID = MKDEV(gWmtMajor, 0);
     INT32 cdevErr = -1;
     INT32 ret = -1;
-#if REMOVE_MK_NODE
+#ifdef REMOVE_MK_NODE
 	struct device * wmt_dev = NULL;
 #endif
 
@@ -1276,7 +1278,7 @@ static int WMT_init(void)
         goto error;
     }
     WMT_INFO_FUNC("driver(major %d) installed \n", gWmtMajor);
-#if REMOVE_MK_NODE
+#ifdef REMOVE_MK_NODE
 	wmt_class = class_create(THIS_MODULE,"stpwmt");
 	if(IS_ERR(wmt_class))
 		goto error;
@@ -1330,10 +1332,10 @@ static int WMT_init(void)
 
 error:
     wmt_lib_deinit();
-#if CFG_WMT_DBG_SUPPORT    
+#if CFG_WMT_DBG_SUPPORT
     wmt_dev_dbg_remove();
 #endif
-#if REMOVE_MK_NODE
+#ifdef REMOVE_MK_NODE
 	if(!IS_ERR(wmt_dev))
 		device_destroy(wmt_class,devID);
 	if(!IS_ERR(wmt_class)){
@@ -1362,7 +1364,7 @@ static void WMT_exit (void)
 
 
     wmt_lib_deinit();
-    
+
 #if CFG_WMT_DBG_SUPPORT
     wmt_dev_dbg_remove();
 #endif
@@ -1374,7 +1376,7 @@ static void WMT_exit (void)
     cdev_del(&gWmtCdev);
     unregister_chrdev_region(dev, WMT_DEV_NUM);
     gWmtMajor = -1;
-#if REMOVE_MK_NODE
+#ifdef REMOVE_MK_NODE
 	device_destroy(wmt_class,MKDEV(gWmtMajor, 0) );
     class_destroy(wmt_class);
 	wmt_class = NULL;
